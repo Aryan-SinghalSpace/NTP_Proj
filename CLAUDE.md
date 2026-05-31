@@ -128,6 +128,6 @@ _Resolved 2026-05-31: backend language (TS/NestJS), workflow engine (Temporal), 
 - `CLAUDE.md` — this file. Always loaded.
 - `docs/PRD.md` — full Product Requirements Document. Read on demand.
 - `docs/decisions.md` — append-only log of decisions taken across sessions.
-- `docs/architecture.md` — to be created at architecture session.
+- `docs/architecture.md` — system topology, Temporal interpreter internals, multi-tenant RLS model, supporting services (v0.1, 2026-05-31).
 - `docs/security.md` — to be created at security session.
-- `docs/data-model.md` — to be created.
+- `docs/data-model.md` — to be created (recommended next doc; schema/DDL/ER).
