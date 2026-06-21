@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Command x Bento design tokens (mirrors mockups/final/assets/system.css) */
+:root {
+  --bg: #f6f5f2;
+  --surface: #ffffff;
+  --surface-2: #f7f6f3;
+  --border: #ecebe6;
+  --text: #1b1922;
+  --muted: #6e6a78;
+  --subtle: #a09bab;
+  --primary: #5b5bf0;
+  --primary-soft: #ecebfe;
+  --primary-fg: #ffffff;
+  --teal: #10b6a0;
+  --amber: #f0a020;
+  --rose: #f0566f;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

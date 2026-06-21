@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-06-21 — Codebase scaffolding: pnpm + Turborepo monorepo, Drizzle ORM, Zod field-type system
+
+**Decision**: Began the real build with the foundation + first vertical slice. Structure:
+- **Monorepo**: pnpm workspaces + Turborepo. `apps/api` (NestJS modular monolith), `apps/web` (Next.js 14 App Router on the Command × Bento design system), `packages/field-types` (shared Zod field-type system + GS1 validators), `infra/` (docker-compose: Postgres, Redis, Temporal+UI, MinIO).
+- **ORM / migrations**: **Drizzle ORM** (SQL-first) + a minimal raw-SQL migration runner. Chosen over Prisma for direct control of **RLS** (`set_config('app.tenant_id', …, true)` per transaction) and JSONB, which our model leans on heavily.
+- **Strict typing**: the field-type system (data types, validation→Zod compiler, GS1 mod-10 check digit) lives in one shared package consumed by both API and web — the mechanism behind invariant #3. (Package is CommonJS to avoid ESM/CJS friction with NestJS.)
+- **First slice shipped**: `tenant` + `field_definition` (append-only versions) with **Postgres RLS** enforced via a non-superuser app role; `GET /api/fields?entity=batch` reads Core/Super/Tenant fields through RLS; a Next.js Field Library page renders it. Auth is a header stand-in (`x-tenant-id`) pending real OIDC.
+
+**Rationale**: Realises architecture decisions (modular monolith, RLS, shared types) as runnable code, smallest-slice-first per the user's "basics first, then scale" directive. Drizzle keeps RLS/JSONB explicit and avoids Prisma's awkwardness there.
+
+**Status / to confirm**: Drizzle (vs Prisma) is the one genuinely new pick here — flag for confirmation. Toolchain (Node/Docker) was absent on the dev machine; scaffold written ahead of install (see `docs/SETUP.md`).
+
+**Decided by**: Platform Super Admin (build kickoff).
+
+---
+
 ## 2026-06-21 — DataKart/GS1 reference analysis: stay the course, adopt targeted enrichments
 
 **Decision**: Studied GS1 India's live **DataKart (DK 2.0)** system and the original **GS1 BRD/RFP** (the `Hakuna Matata` and `DK-2-Prod-Features--main` folders) as **reference only — never to be cloned**. Outcome: **continue with our current PRD/architecture unchanged in direction**; the analysis validates rather than challenges it. Adopt these enrichments:

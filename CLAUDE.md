@@ -133,5 +133,15 @@ _Resolved 2026-05-31: backend language (TS/NestJS), workflow engine (Temporal), 
 - `docs/data-model.md` — logical data model: entities, RLS, meta-model/Field Library, partitioned events, audit chain, opt-in GS1 allocation, ER diagram (v0.1, 2026-06-21).
 - `docs/security.md` — to be created at security session.
 - `mockups/` — static HTML UI mockups. Chosen direction: **Command × Bento** (`mockups/final/`); 5 concept explorations in `mockups/concepts/`.
+- `docs/SETUP.md` — how to run the codebase locally (install → infra → migrate → run).
+
+## Codebase (scaffold v0, 2026-06-21)
+
+Monorepo (pnpm + Turborepo). See `docs/SETUP.md` to run.
+- `apps/api` — NestJS modular monolith. RLS-aware `TenantDbService`, tenant-context middleware, `/health`, `/fields`. Drizzle ORM + raw-SQL migrations in `apps/api/drizzle`.
+- `apps/web` — Next.js 14 App Router on the Command × Bento Tailwind tokens; Dashboard + live Field Library page.
+- `packages/field-types` — shared Zod field-type system + GS1 validators (strict typing, both sides).
+- `infra/` — docker-compose (Postgres + RLS app role, Redis, Temporal + UI, MinIO).
+- First slice: tenant + Field Library meta-model behind Postgres RLS, end to end. Auth is a header stand-in pending OIDC.
 
 > **Confidential reference (git-ignored, local-only):** `Hakuna Matata/` and `DK-2-Prod-Features--main/` are third-party DataKart material — study as reference, **never clone, never commit/push**.
