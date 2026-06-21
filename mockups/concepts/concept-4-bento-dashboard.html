@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Concept 4 · Bento · Traceability Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f3f1ee; --card:#ffffff; --text:#191720; --muted:#7b7689; --subtle:#a8a3b5;
+    --indigo:#5b5bf0; --teal:#10b6a0; --amber:#f5a623; --rose:#f0566f; --sky:#3aa0f5;
+    --display:'Space Grotesk',sans-serif;
+  }
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
+  .conceptbar{display:flex;align-items:center;gap:16px;height:40px;padding:0 16px;background:#191720;color:#cdc9d6;font-size:12.5px}
+  .conceptbar .cb-t{font-weight:700;color:#fff}
+  .conceptbar nav{display:flex;gap:3px}
+  .conceptbar a{padding:4px 10px;border-radius:6px;color:#a8a3b5}
+  .conceptbar a:hover{background:#262330;color:#fff}
+  .conceptbar a.active{background:#332f40;color:#fff}
+
+  .wrap{max-width:1160px;margin:0 auto;padding:26px 24px 60px}
+  /* floating pill nav */
+  .pillnav{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:999px;padding:8px 10px;box-shadow:0 8px 24px -10px rgba(40,30,60,.2);margin-bottom:30px}
+  .pillnav .lg{width:34px;height:34px;border-radius:999px;background:linear-gradient(135deg,var(--indigo),var(--teal));color:#fff;display:grid;place-items:center;font-weight:800;font-family:var(--display)}
+  .pillnav nav{display:flex;gap:2px;margin-left:6px}
+  .pillnav a{padding:8px 16px;border-radius:999px;color:var(--muted);font-weight:600;font-size:13.5px}
+  .pillnav a:hover{background:#f3f1f7;color:var(--text)}
+  .pillnav a.on{background:var(--text);color:#fff}
+  .pillnav .av{margin-left:auto;width:36px;height:36px;border-radius:999px;background:var(--rose);color:#fff;display:grid;place-items:center;font-weight:700}
+  /* greeting */
+  .greet{display:flex;align-items:flex-end;margin-bottom:22px}
+  .greet h1{font-family:var(--display);font-size:30px;font-weight:700;letter-spacing:-.01em}
+  .greet p{color:var(--muted);margin-top:4px;font-size:14px}
+  .greet .today{margin-left:auto;text-align:right}
+  .greet .today .d{font-family:var(--display);font-weight:700;font-size:16px}
+  .greet .today .s{color:var(--subtle);font-size:12.5px}
+  /* bento */
+  .bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:150px;gap:16px}
+  .tile{background:var(--card);border-radius:24px;padding:22px;position:relative;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+  .c2{grid-column:span 2} .r2{grid-row:span 2}
+  .tile .tl{font-size:13px;color:var(--muted);font-weight:600}
+  .tile .tv{font-family:var(--display);font-size:36px;font-weight:700;letter-spacing:-.02em;margin-top:auto}
+  .flexcol{display:flex;flex-direction:column;height:100%}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:700}
+  .grad-indigo{background:linear-gradient(135deg,#6d6dff,#8f6dff);color:#fff}
+  .grad-rose{background:linear-gradient(140deg,#ff6f86,#f5566f);color:#fff}
+  .grad-teal{background:linear-gradient(135deg,#19c2ab,#10a48f);color:#fff}
+  .grad-amber{background:linear-gradient(135deg,#ffc24d,#f5a623);color:#fff}
+  .onwhite{color:#fff}
+  .pillbtn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:999px;font-weight:650;font-size:13px;border:0;cursor:pointer}
+  .delta{font-size:12.5px;font-weight:700;margin-top:6px}
+  .up{color:var(--teal)} .down{color:var(--rose)}
+  /* events list mini */
+  .ev{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #efedf2}
+  .ev:last-child{border-bottom:0}
+  .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .ev .id{font-weight:600;font-size:13px}
+  .ev .m{margin-left:auto;color:var(--subtle);font-size:12px}
+  .bar{height:8px;border-radius:99px;background:rgba(255,255,255,.35);overflow:hidden;margin-top:14px}
+  .bar>span{display:block;height:100%;background:#fff;border-radius:99px}
+  .qa{display:flex;flex-direction:column;gap:10px;margin-top:auto}
+  .qa button{justify-content:flex-start;background:#f4f2f7;color:var(--text)}
+  .blob{position:absolute;border-radius:50%;filter:blur(2px);opacity:.5}
+  svg{display:block}
+</style>
+</head>
+<body data-concept="4" data-page="dashboard">
+<script src="../assets/nav.js"></script>
+<div class="conceptbar">
+  <span class="cb-t">UI Concept Explorations</span>
+  <nav>
+    <a href="../index.html">1 · Sidebar</a>
+    <a href="concept-2-command.html">2 · Command</a>
+    <a href="concept-3-workspace.html">3 · Workspace</a>
+    <a href="concept-4-bento.html" class="active">4 · Bento</a>
+    <a href="concept-5-console.html">5 · Console</a>
+  </nav>
+</div>
+
+<div class="wrap">
+  <div class="pillnav">
+    <div class="lg">T</div>
+    <nav>
+      <a class="on" href="#">Home</a>
+      <a href="#">Products</a>
+      <a href="#">Fields</a>
+      <a href="#">Workflows</a>
+      <a href="#">Events</a>
+      <a href="#">Labels</a>
+    </nav>
+    <div class="av">RS</div>
+  </div>
+
+  <div class="greet">
+    <div>
+      <h1>Good morning, Riya 👋</h1>
+      <p>Here's what's happening across Acme Foods today.</p>
+    </div>
+    <div class="today">
+      <div class="d">Saturday, 31 May</div>
+      <div class="s">All systems nominal · 14s ingest lag</div>
+    </div>
+  </div>
+
+  <div class="bento">
+    <!-- big today card -->
+    <div class="tile c2 r2 grad-indigo flexcol" style="color:#fff">
+      <div class="blob" style="width:180px;height:180px;background:#ffffff;right:-40px;top:-50px;opacity:.12"></div>
+      <span class="badge" style="background:rgba(255,255,255,.2);color:#fff;align-self:flex-start">Events today</span>
+      <div class="tv" style="margin-top:18px">48,210</div>
+      <div style="opacity:.85;font-size:13px;margin-top:2px">▲ 12% vs yesterday · across 3 plants</div>
+      <div style="margin-top:auto;display:flex;gap:16px">
+        <div><div style="font-family:var(--display);font-size:20px;font-weight:700">12,480</div><div style="opacity:.8;font-size:12px">Active GTINs</div></div>
+        <div><div style="font-family:var(--display);font-size:20px;font-weight:700">7</div><div style="opacity:.8;font-size:12px">QC holds</div></div>
+        <div><div style="font-family:var(--display);font-size:20px;font-weight:700">340</div><div style="opacity:.8;font-size:12px">Labels printed</div></div>
+      </div>
+    </div>
+
+    <!-- recall -->
+    <div class="tile c2 grad-rose flexcol" style="color:#fff">
+      <div style="display:flex;align-items:center"><span class="badge" style="background:rgba(255,255,255,.2);color:#fff">● Active recall</span><span style="margin-left:auto;font-family:var(--display);font-weight:700">RC-0042</span></div>
+      <div style="font-family:var(--display);font-size:22px;font-weight:700;margin-top:12px">Batch B-240517</div>
+      <div style="opacity:.9;font-size:13px">3,420 units · 11 dealers impacted</div>
+      <div class="bar"><span style="width:82%"></span></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;opacity:.9;margin-top:6px"><span>Fan-out</span><span style="font-weight:700">82%</span></div>
+    </div>
+
+    <!-- chart -->
+    <div class="tile c2 flexcol">
+      <div style="display:flex;align-items:center"><div class="tl">Event volume · 7 days</div><a style="margin-left:auto;color:var(--indigo);font-weight:650;font-size:12.5px" href="#">Report →</a></div>
+      <svg viewBox="0 0 380 90" width="100%" height="90" style="margin-top:auto" preserveAspectRatio="none">
+        <g fill="url(#g)"><rect x="6" y="40" width="38" height="50" rx="7"/><rect x="58" y="28" width="38" height="62" rx="7"/><rect x="110" y="50" width="38" height="40" rx="7"/><rect x="162" y="18" width="38" height="72" rx="7"/><rect x="214" y="36" width="38" height="54" rx="7"/><rect x="266" y="10" width="38" height="80" rx="7"/><rect x="318" y="30" width="38" height="60" rx="7"/></g>
+        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6d6dff"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+      </svg>
+    </div>
+
+    <!-- FEFO -->
+    <div class="tile grad-amber flexcol" style="color:#fff">
+      <span class="badge" style="background:rgba(255,255,255,.25);color:#fff;align-self:flex-start">FEFO</span>
+      <div style="font-family:var(--display);font-size:24px;font-weight:700;margin-top:auto">2 advisories</div>
+      <div style="opacity:.9;font-size:12.5px">older batches still available at Mumbai &amp; Pune DC</div>
+    </div>
+
+    <!-- approvals -->
+    <div class="tile flexcol">
+      <div class="tl">Pending approvals</div>
+      <div style="margin-top:12px;font-family:var(--display);font-size:34px;font-weight:700">2</div>
+      <div style="color:var(--muted);font-size:12.5px;margin-top:auto">1 field promotion · 1 workflow publish</div>
+    </div>
+
+    <!-- recent events wide -->
+    <div class="tile c2 flexcol" style="grid-row:span 1">
+      <div class="tl" style="margin-bottom:8px">Recent events</div>
+      <div class="ev"><span class="dot" style="background:var(--sky)"></span><span class="id">Dispatch · B-240931</span><span class="m">Mumbai DC</span></div>
+      <div class="ev"><span class="dot" style="background:var(--amber)"></span><span class="id">QC Hold · B-240517</span><span class="m">Plant MUM-1</span></div>
+      <div class="ev"><span class="dot" style="background:var(--teal)"></span><span class="id">Commission · 8901234…</span><span class="m">Plant PUN-2</span></div>
+    </div>
+
+    <!-- quick actions -->
+    <div class="tile c2 flexcol">
+      <div class="tl">Quick actions</div>
+      <div class="qa">
+        <button class="pillbtn"><span style="width:8px;height:8px;border-radius:50%;background:var(--indigo)"></span> Run a workflow</button>
+        <button class="pillbtn"><span style="width:8px;height:8px;border-radius:50%;background:var(--rose)"></span> Open a recall</button>
+        <button class="pillbtn"><span style="width:8px;height:8px;border-radius:50%;background:var(--teal)"></span> Generate labels</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

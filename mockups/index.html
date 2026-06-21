@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html class="theme-signature" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UI Mockups · Traceability Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/theme.css" />
+<style>
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 24px 64px; }
+  .hero h1 { font-size: 30px; font-weight: 800; letter-spacing: -.02em; margin: 0 0 8px; }
+  .hero p { color: var(--text-muted); font-size: 15px; max-width: 680px; margin: 0; }
+  .dir-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 28px 0; }
+  .dir { padding: 18px; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); }
+  .swatches { display: flex; gap: 8px; margin: 12px 0; }
+  .sw { width: 30px; height: 30px; border-radius: 8px; box-shadow: var(--shadow-sm); }
+  .screens { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .screen-card { display: block; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); overflow: hidden; box-shadow: var(--shadow-sm); transition: box-shadow .15s, transform .06s; }
+  .screen-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+  .sc-thumb { height: 132px; background: var(--surface-2); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .sc-body { padding: 14px 16px 16px; }
+  .sc-body h3 { margin: 0 0 3px; font-size: 15px; font-weight: 700; }
+  .sc-body p { margin: 0; font-size: 12.5px; color: var(--text-muted); }
+  .note { margin-top: 26px; padding: 16px 18px; border-radius: var(--radius); background: var(--primary-soft); color: var(--primary-soft-fg); font-size: 13.5px; }
+</style>
+</head>
+<body>
+
+<div class="mockbar">
+  <div class="mb-brand"><span class="dot"></span> Traceability Platform · UI Mockups</div>
+  <nav class="mb-nav">
+    <a href="index.html">Overview</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="builder.html">Workflow Builder</a>
+    <a href="fields.html">Field Library</a>
+  </nav>
+  <div class="mb-spacer"></div>
+  <span class="mb-themelabel">Theme</span>
+  <div class="seg">
+    <button data-theme="signature" class="on">Signature</button>
+    <button data-theme="clean">Clean</button>
+    <button data-theme="warm">Warm</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>UI / UX exploration</h1>
+    <p>Three signature screens. The default <strong>Signature</strong> theme is the converged direction we agreed on — <strong>indigo accent + teal secondary, on warm cream surfaces, Plus&nbsp;Jakarta&nbsp;Sans, medium corners, pill badges</strong>. The original <strong>Clean</strong> and <strong>Warm</strong> directions are still in the top-right toggle so you can compare the convergence against where we started. Nothing is wired up; it's purely about feel.</p>
+  </div>
+
+  <div class="dir" style="margin:24px 0;border:1px solid var(--primary);background:var(--primary-soft)">
+    <strong style="color:var(--primary-soft-fg)">★ Signature — the converged direction (default)</strong>
+    <div class="swatches">
+      <span class="sw" style="background:#4f46e5"></span>
+      <span class="sw" style="background:#0f9b8e"></span>
+      <span class="sw" style="background:#2b2620"></span>
+      <span class="sw" style="background:#faf5ef;border:1px solid #ece2d6"></span>
+      <span class="sw" style="background:#fffdfb;border:1px solid #ece2d6"></span>
+    </div>
+    <p style="margin:0;color:var(--primary-soft-fg);font-size:13px">Indigo primary, teal secondary, warm cream canvas with off-white cards, Plus Jakarta Sans, ~11px radius, pill badges. Indigo's precision on a warmer, friendlier canvas.</p>
+  </div>
+
+  <div style="font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-subtle);margin-bottom:10px">Original directions (for reference)</div>
+  <div class="dir-grid">
+    <div class="dir">
+      <strong>Direction A — Clean enterprise SaaS</strong>
+      <div class="swatches">
+        <span class="sw" style="background:#4f46e5"></span>
+        <span class="sw" style="background:#0ea5e9"></span>
+        <span class="sw" style="background:#0f172a"></span>
+        <span class="sw" style="background:#f5f6f8;border:1px solid #e6e8ec"></span>
+      </div>
+      <p style="margin:0;color:var(--text-muted);font-size:13px">Inter, indigo accent, tight 9px corners, thin borders, restrained shadows. Linear/Vercel energy — neutral, precise, professional.</p>
+    </div>
+    <div class="dir">
+      <strong>Direction B — Warm &amp; approachable</strong>
+      <div class="swatches">
+        <span class="sw" style="background:#e0623c"></span>
+        <span class="sw" style="background:#0f9b8e"></span>
+        <span class="sw" style="background:#2c241e"></span>
+        <span class="sw" style="background:#faf5ef;border:1px solid #ece0d3"></span>
+      </div>
+      <p style="margin:0;color:var(--text-muted);font-size:13px">Plus Jakarta Sans, terracotta + teal, generous 16px+ corners, cream surfaces, soft shadows. Friendlier — lowers the intimidation of a complex platform.</p>
+    </div>
+  </div>
+
+  <div class="screens">
+    <a class="screen-card" href="dashboard.html">
+      <div class="sc-thumb">
+        <div style="position:absolute;left:12px;top:12px;width:54px;height:108px;background:var(--surface);border:1px solid var(--border);border-radius:8px"></div>
+        <div style="position:absolute;left:74px;top:12px;right:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div style="height:30px;background:var(--primary-soft);border-radius:6px"></div>
+          <div style="height:30px;background:var(--surface);border:1px solid var(--border);border-radius:6px"></div>
+          <div style="height:30px;background:var(--surface);border:1px solid var(--border);border-radius:6px"></div>
+        </div>
+        <div style="position:absolute;left:74px;top:50px;right:12px;height:70px;background:var(--surface);border:1px solid var(--border);border-radius:6px"></div>
+      </div>
+      <div class="sc-body"><h3>Admin Dashboard</h3><p>KPIs, event volume, recent events, active recall, FEFO advisories.</p></div>
+    </a>
+
+    <a class="screen-card" href="builder.html">
+      <div class="sc-thumb">
+        <div style="position:absolute;inset:12px;border-radius:8px;background:radial-gradient(var(--grid-dot) 1.3px,transparent 1.3px);background-size:14px 14px;border:1px solid var(--border)"></div>
+        <div style="position:absolute;left:30px;top:54px;width:40px;height:24px;background:var(--info-soft);border:1px solid var(--info);border-radius:6px"></div>
+        <div style="position:absolute;left:92px;top:54px;width:40px;height:24px;background:var(--primary-soft);border:1px solid var(--primary);border-radius:6px"></div>
+        <div style="position:absolute;left:154px;top:40px;width:40px;height:24px;background:var(--warning-soft);border:1px solid var(--warning);border-radius:6px"></div>
+        <div style="position:absolute;left:154px;top:78px;width:40px;height:24px;background:var(--danger-soft);border:1px solid var(--danger);border-radius:6px"></div>
+      </div>
+      <div class="sc-body"><h3>Workflow Builder</h3><p>Node palette, graph canvas with typed connectors, properties inspector.</p></div>
+    </a>
+
+    <a class="screen-card" href="fields.html">
+      <div class="sc-thumb">
+        <div style="position:absolute;left:12px;right:12px;top:14px;height:18px;background:var(--surface);border:1px solid var(--border);border-radius:5px"></div>
+        <div style="position:absolute;left:12px;right:12px;top:40px;bottom:14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px"></div>
+        <div style="position:absolute;left:22px;top:54px;width:44px;height:12px;background:var(--tier-super-soft);border-radius:4px"></div>
+        <div style="position:absolute;left:22px;top:74px;width:44px;height:12px;background:var(--tier-tenant-soft);border-radius:4px"></div>
+        <div style="position:absolute;left:22px;top:94px;width:44px;height:12px;background:var(--tier-core-soft);border-radius:4px"></div>
+      </div>
+      <div class="sc-body"><h3>Field Library</h3><p>Core / Super / Tenant tiers, typed fields, versions, deactivate-not-delete.</p></div>
+    </a>
+  </div>
+
+  <div class="note">
+    Tip: open any screen, then toggle <strong>Clean ⇄ Warm</strong> at the top-right to A/B the same screen instantly. Tell me which direction wins overall — or mix (“Clean layout + Warm color”, “Warm radius but indigo accent”) and I'll converge to a single system.
+  </div>
+</div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

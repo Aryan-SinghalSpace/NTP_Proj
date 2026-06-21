@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html class="theme-signature" lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UI Concepts · Traceability Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/theme.css" />
+<style>
+  .wrap{max-width:1140px;margin:0 auto;padding:38px 24px 70px}
+  .hero h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:0 0 8px}
+  .hero p{color:var(--text-muted);font-size:15px;max-width:760px;margin:0}
+  .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+  .concept{border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);overflow:hidden;box-shadow:var(--shadow-sm);transition:box-shadow .15s,transform .06s;display:block}
+  .concept:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+  .thumb{height:172px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+  .cbody{padding:16px 18px 18px}
+  .cbody .num{font-family:var(--font-mono);font-size:12px;color:var(--text-subtle);font-weight:600}
+  .cbody h3{margin:3px 0 5px;font-size:17px;font-weight:750}
+  .cbody p{margin:0;font-size:13px;color:var(--text-muted);line-height:1.5}
+  .meta{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap}
+  .meta span{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--text-muted)}
+  .badge-new{position:absolute;top:12px;right:12px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--primary);color:#fff;z-index:2}
+  .badge-have{position:absolute;top:12px;right:12px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--success-soft);color:var(--success-fg);z-index:2}
+  /* mini renders */
+  .m{position:absolute;font-family:'Inter',sans-serif}
+</style>
+</head>
+<body data-concept="gallery" data-page="dashboard">
+<script src="assets/nav.js"></script>
+
+<div class="mockbar">
+  <div class="mb-brand"><span class="dot"></span> Traceability Platform · UI Mockups</div>
+  <nav class="mb-nav">
+    <a href="index.html">Concept 1</a>
+    <a href="concepts.html" class="active">All concepts</a>
+  </nav>
+  <div class="mb-spacer"></div>
+  <span class="mb-themelabel">5 directions</span>
+</div>
+
+<div class="wrap">
+  <div class="hero">
+    <h1>Five whole-product UI directions</h1>
+    <p>Each concept is a different navigation paradigm, layout, flow and visual language — not just a re-skin. They use the same sample data so you can compare structure directly. The five originals are below for reference — but a direction has been <strong>chosen</strong>.</p>
+  </div>
+
+  <a href="final/dashboard.html" class="screen-card" style="display:block;margin-bottom:26px;border:2px solid var(--primary);background:linear-gradient(135deg,var(--primary-soft),var(--surface))">
+    <div style="padding:20px 22px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <strong style="color:var(--primary-soft-fg);font-size:17px">★ CHOSEN DIRECTION — Command × Bento (v1 design system)</strong>
+        <span style="margin-left:auto;font-weight:700;color:var(--primary)">Open the 3 final screens →</span>
+      </div>
+      <p style="margin:8px 0 0;color:var(--text-muted);font-size:13.5px">Concept&nbsp;2's top-nav + ⌘K command palette + disciplined density, rendered as Concept&nbsp;4's warm rounded bento cards with tasteful gradients. Space&nbsp;Grotesk display + Inter body; indigo primary with teal/amber/rose accents on a warm canvas. <strong>Dashboard · Workflow&nbsp;Builder · Field&nbsp;Library</strong>, all on one shared design system.</p>
+    </div>
+  </a>
+
+  <div style="font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-subtle);margin-bottom:12px">The five original concepts (reference)</div>
+
+  <div class="cgrid">
+
+    <!-- Concept 1 -->
+    <a class="concept" href="dashboard.html">
+      <span class="badge-have">✓ Built (3 screens)</span>
+      <div class="thumb" style="background:#f5f6f8">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:58px;background:#fff;border-right:1px solid #e6e8ec"></div>
+        <div style="position:absolute;left:58px;right:0;top:0;height:30px;background:#fff;border-bottom:1px solid #e6e8ec"></div>
+        <div style="position:absolute;left:74px;top:44px;display:grid;grid-template-columns:repeat(4,52px);gap:8px"><div style="height:34px;background:#eef2ff;border-radius:7px"></div><div style="height:34px;background:#fff;border:1px solid #e6e8ec;border-radius:7px"></div><div style="height:34px;background:#fff;border:1px solid #e6e8ec;border-radius:7px"></div><div style="height:34px;background:#fff;border:1px solid #e6e8ec;border-radius:7px"></div></div>
+        <div style="position:absolute;left:74px;right:16px;top:90px;height:60px;background:#fff;border:1px solid #e6e8ec;border-radius:8px"></div>
+      </div>
+      <div class="cbody">
+        <div class="num">CONCEPT 01</div>
+        <h3>Sidebar SaaS <span style="font-weight:500;color:var(--text-subtle);font-size:13px">· Signature</span></h3>
+        <p>The classic: persistent left sidebar, top bar, cards. Familiar, scalable to many modules. This is the one we already themed (Dashboard, Builder, Field Library).</p>
+        <div class="meta"><span>Left sidebar</span><span>Warm + indigo</span><span>Plus Jakarta</span></div>
+      </div>
+    </a>
+
+    <!-- Concept 2 -->
+    <a class="concept" href="concepts/concept-2-command-dashboard.html">
+      <span class="badge-new">NEW</span>
+      <div class="thumb" style="background:#fff">
+        <div style="position:absolute;left:0;right:0;top:0;height:34px;background:#fff;border-bottom:1px solid #eceded"></div>
+        <div style="position:absolute;left:120px;top:9px;width:80px;height:16px;background:#0b0b0c;border-radius:6px"></div>
+        <div style="position:absolute;right:18px;top:9px;width:90px;height:16px;background:#f7f8f8;border:1px solid #e2e4e4;border-radius:6px"></div>
+        <div style="position:absolute;left:50px;right:50px;top:54px;height:46px;border:1px solid #eceded;border-radius:10px;display:grid;grid-template-columns:repeat(4,1fr)"><div style="border-right:1px solid #eceded"></div><div style="border-right:1px solid #eceded"></div><div style="border-right:1px solid #eceded"></div><div></div></div>
+        <div style="position:absolute;left:50px;top:114px;width:64px;height:8px;background:#ecfdf5;border-radius:4px"></div>
+      </div>
+      <div class="cbody">
+        <div class="num">CONCEPT 02</div>
+        <h3>Command</h3>
+        <p>Top-nav, keyboard-first power tool — Linear/Height energy. Centered content, flat KPI strip, ⌘K command palette, quick-action rows with ⏎ hints. Emerald accent, dense, monochrome.</p>
+        <div class="meta"><span>Top nav</span><span>Command palette</span><span>Emerald · flat</span></div>
+      </div>
+    </a>
+
+    <!-- Concept 3 -->
+    <a class="concept" href="concepts/concept-3-workspace-dashboard.html">
+      <span class="badge-new">NEW</span>
+      <div class="thumb" style="background:#f6f5fb">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:30px;background:#fff;border-right:1px solid #eae7f3"></div>
+        <div style="position:absolute;left:30px;top:0;bottom:0;width:90px;background:#fff;border-right:1px solid #eae7f3"></div>
+        <div style="position:absolute;left:42px;top:40px;width:60px;height:12px;background:#f1ebfd;border-radius:5px"></div>
+        <div style="position:absolute;left:42px;top:58px;width:60px;height:12px;background:#f4f2fb;border-radius:5px"></div>
+        <div style="position:absolute;left:136px;top:30px;display:grid;grid-template-columns:repeat(3,52px);gap:8px"><div style="height:40px;background:#fff;border:1px solid #eae7f3;border-radius:10px"></div><div style="height:40px;background:#fff;border:1px solid #eae7f3;border-radius:10px"></div><div style="height:40px;background:#fff;border:1px solid #eae7f3;border-radius:10px"></div></div>
+        <div style="position:absolute;left:136px;right:16px;top:84px;height:56px;background:#fff;border:1px solid #eae7f3;border-radius:10px"></div>
+      </div>
+      <div class="cbody">
+        <div class="num">CONCEPT 03</div>
+        <h3>Workspace</h3>
+        <p>Three-pane: thin icon rail + contextual list panel + content. Notion/Linear hybrid built for deep navigation (entity trees, pinned items, tasks/approvals). Violet accent, soft and rounded.</p>
+        <div class="meta"><span>Icon rail + panel</span><span>3-pane</span><span>Violet · soft</span></div>
+      </div>
+    </a>
+
+    <!-- Concept 4 -->
+    <a class="concept" href="concepts/concept-4-bento-dashboard.html">
+      <span class="badge-new">NEW</span>
+      <div class="thumb" style="background:#f3f1ee">
+        <div style="position:absolute;left:40px;right:40px;top:14px;height:26px;background:#fff;border-radius:999px"></div>
+        <div style="position:absolute;left:18px;right:18px;top:54px;bottom:14px;display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:42px;gap:8px">
+          <div style="grid-column:span 2;grid-row:span 2;background:linear-gradient(135deg,#6d6dff,#8f6dff);border-radius:16px"></div>
+          <div style="grid-column:span 2;background:linear-gradient(140deg,#ff6f86,#f5566f);border-radius:16px"></div>
+          <div style="background:#fff;border-radius:16px"></div>
+          <div style="background:linear-gradient(135deg,#ffc24d,#f5a623);border-radius:16px"></div>
+        </div>
+      </div>
+      <div class="cbody">
+        <div class="num">CONCEPT 04</div>
+        <h3>Bento</h3>
+        <p>No chrome — a friendly greeting and a bento grid of big rounded cards in varied sizes. Playful gradients, Space Grotesk display type, floating pill nav. Approachable for less-technical users &amp; execs.</p>
+        <div class="meta"><span>Pill nav</span><span>Bento cards</span><span>Gradients · friendly</span></div>
+      </div>
+    </a>
+
+    <!-- Concept 5 -->
+    <a class="concept" href="concepts/concept-5-console-dashboard.html">
+      <span class="badge-new">NEW</span>
+      <div class="thumb" style="background:#0a0d13">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:26px;background:#0e121a;border-right:1px solid #1e2530"></div>
+        <div style="position:absolute;left:26px;right:0;top:0;height:26px;background:#0e121a;border-bottom:1px solid #1e2530"></div>
+        <div style="position:absolute;left:38px;top:38px;right:14px;height:46px;background:#11151d;border:1px solid #1e2530;border-radius:8px"></div>
+        <svg style="position:absolute;left:48px;top:50px;width:150px;height:24px" viewBox="0 0 150 24"><polyline fill="none" stroke="#22d3ee" stroke-width="2" points="0,18 25,12 50,15 75,6 100,10 125,4 150,2"/></svg>
+        <div style="position:absolute;left:38px;top:96px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px;right:14px"><div style="height:24px;background:#11151d;border:1px solid #1e2530;border-radius:6px"></div><div style="height:24px;background:#11151d;border:1px solid #1e2530;border-radius:6px"></div><div style="height:24px;background:#1a0d12;border:1px solid #3a1620;border-radius:6px"></div></div>
+      </div>
+      <div class="cbody">
+        <div class="num">CONCEPT 05</div>
+        <h3>Console</h3>
+        <p>Dark operations / control-room. Live status strip, throughput sparklines, ingest gauges, plant &amp; dealer status lights, a recall war-room, and a live event stream. Monospace, neon cyan/green/amber.</p>
+        <div class="meta"><span>Dark · dense</span><span>Live ops</span><span>Neon · monospace</span></div>
+      </div>
+    </a>
+
+    <!-- mix prompt -->
+    <div class="concept" style="display:flex;align-items:center;justify-content:center;text-align:center;cursor:default;background:var(--primary-soft);border-color:var(--primary)">
+      <div style="padding:30px">
+        <div style="font-size:30px">🧩</div>
+        <h3 style="margin:10px 0 6px;color:var(--primary-soft-fg)">Mix &amp; match</h3>
+        <p style="color:var(--primary-soft-fg);max-width:280px;font-size:13px">Pick the navigation from one, the cards from another, the colour from a third. Tell me the recipe and I'll converge it into the real design system.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

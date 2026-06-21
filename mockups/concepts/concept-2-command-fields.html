@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Concept 2 · Command · Field Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#ffffff; --panel:#ffffff; --soft:#f7f8f8; --border:#eceded; --border2:#e2e4e4;
+    --text:#0b0b0c; --muted:#6b7280; --subtle:#9aa1ab;
+    --accent:#059669; --accent-soft:#ecfdf5; --accent-fg:#047857;
+    --amber:#d97706; --amber-soft:#fffbeb; --red:#dc2626; --red-soft:#fef2f2; --blue:#2563eb; --blue-soft:#eff6ff;
+    --indigo:#6366f1; --indigo-soft:#eef2ff; --teal:#0d9488; --teal-soft:#f0fdfa;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
+  a{text-decoration:none;color:inherit}
+  .conceptbar{display:flex;align-items:center;gap:16px;height:40px;padding:0 16px;background:#0b0b0c;color:#cfd2d6;font-size:12.5px}
+  /* top nav */
+  .topnav{display:flex;align-items:center;gap:8px;height:56px;padding:0 22px;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:750;font-size:14.5px}
+  .brand .lg{width:24px;height:24px;border-radius:7px;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+  .tnav{display:flex;gap:2px;margin-left:18px}
+  .tnav a{padding:7px 12px;border-radius:7px;color:var(--muted);font-weight:550;font-size:13.5px}
+  .tnav a:hover{background:var(--soft);color:var(--text)}
+  .tnav a.active{background:var(--text);color:#fff}
+  .cmd{margin-left:auto;display:flex;align-items:center;gap:9px;height:36px;padding:0 12px;border:1px solid var(--border2);border-radius:9px;color:var(--subtle);width:340px;background:var(--soft)}
+  .cmd .k{margin-left:auto;font-family:var(--mono);font-size:11px;border:1px solid var(--border2);border-radius:5px;padding:1px 6px;background:#fff}
+  .av{width:30px;height:30px;border-radius:8px;background:var(--text);color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px}
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border:1px solid var(--border2);border-radius:9px;background:#fff;color:var(--text);font-family:inherit;font-weight:600;font-size:13px;cursor:pointer}
+  .btn:hover{background:var(--soft)}
+  .btn svg{width:15px;height:15px}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent-fg)}
+  /* content */
+  .wrap{max-width:1120px;margin:0 auto;padding:30px 22px 60px}
+  .page-head{display:flex;align-items:flex-start;gap:16px;margin-bottom:24px}
+  .page-head h1{font-size:24px;font-weight:800;letter-spacing:-.02em}
+  .page-head .sub{color:var(--muted);font-size:13px;margin-top:6px}
+  .ph-actions{margin-left:auto;display:flex;gap:9px;flex:none}
+  /* entity tabs */
+  .tabs{display:flex;gap:3px;border-bottom:1px solid var(--border);margin-bottom:18px}
+  .tab{padding:9px 14px;font-weight:600;font-size:13px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab:hover{color:var(--text)}
+  .tab.active{color:var(--text);border-bottom-color:var(--accent)}
+  /* toolbar */
+  .toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+  .filter{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 11px;border:1px solid var(--border2);border-radius:8px;background:#fff;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+  .filter:hover{background:var(--soft)}
+  .filter svg{width:13px;height:13px}
+  .switch{display:inline-flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+  .switch .track{width:34px;height:19px;border-radius:99px;background:var(--border2);position:relative;transition:background .15s}
+  .switch .track::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+  .switch.on .track{background:var(--accent)}
+  .switch.on .track::after{left:17px}
+  .switch.on{color:var(--text)}
+  /* card + table */
+  .card{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .table{width:100%;border-collapse:collapse;font-size:13px}
+  .table th{text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--subtle);padding:11px 16px;border-bottom:1px solid var(--border);background:var(--soft)}
+  .table td{padding:12px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+  .table tbody tr:last-child td{border-bottom:0}
+  .table tbody tr:hover{background:var(--soft)}
+  .cell-strong{font-weight:650;font-size:13px}
+  .cell-sub{font-size:11.5px;color:var(--subtle)}
+  .mono{font-family:var(--mono)}
+  td.muted{color:var(--muted);font-size:12.5px}
+  .row-off{opacity:.55}
+  .row-off:hover{background:transparent}
+  /* badges */
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:7px;white-space:nowrap}
+  .badge svg{width:12px;height:12px}
+  .badge .bd{width:6px;height:6px;border-radius:50%}
+  .badge-core{background:var(--soft);color:var(--muted);border:1px solid var(--border2)}
+  .badge-super{background:var(--indigo-soft);color:var(--indigo)}
+  .badge-tenant{background:var(--teal-soft);color:var(--teal)}
+  .badge-muted{background:var(--soft);color:var(--muted);border:1px solid var(--border2);font-weight:600}
+  .badge-info{background:var(--blue-soft);color:var(--blue)}
+  .status-dot{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:var(--muted)}
+  .status-dot .d{width:7px;height:7px;border-radius:50%}
+  .d-on{background:var(--accent)}
+  .d-off{background:var(--subtle)}
+  .dots-btn{color:var(--subtle);cursor:pointer}
+  .card-foot{display:flex;align-items:center;padding:13px 16px;border-top:1px solid var(--border)}
+  svg{display:block}
+</style>
+</head>
+<body data-concept="2" data-page="fields">
+<script src="../assets/nav.js"></script>
+
+<div class="topnav">
+  <div class="brand"><span class="lg">T</span> Tracewell</div>
+  <nav class="tnav">
+    <a href="concept-2-command-dashboard.html">Overview</a>
+    <a href="#">Master Data</a>
+    <a class="active" href="#">Fields</a>
+    <a href="concept-2-command-builder.html">Workflows</a>
+    <a href="#">Events</a>
+    <a href="#">Labels</a>
+  </nav>
+  <div class="cmd">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+    Search or run a command…
+    <span class="k">⌘K</span>
+  </div>
+  <div class="av">RS</div>
+</div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <h1>Field Library</h1>
+      <div class="sub">Core, Super and Tenant Custom fields · strongly-typed, versioned, deactivate-not-delete</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/></svg> Request promotion</button>
+      <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Add custom field</button>
+    </div>
+  </div>
+
+  <!-- entity tabs -->
+  <div class="tabs">
+    <div class="tab">Product</div>
+    <div class="tab active">Batch</div>
+    <div class="tab">Unit</div>
+    <div class="tab">Event</div>
+    <div class="tab">Label</div>
+  </div>
+
+  <!-- toolbar -->
+  <div class="toolbar">
+    <div class="filter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg> Tier: All <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+    <div class="filter">Type: All <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+    <div class="filter">Status: Active <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+    <div style="margin-left:auto" class="switch" id="histToggle">
+      <span class="track"></span> View historic records
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr><th>Field</th><th>Tier</th><th>Type</th><th>Validation</th><th>Status</th><th>Ver.</th><th style="width:40px"></th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="cell-strong">Batch Number</div><div class="cell-sub mono">batch_number</div></td>
+          <td><span class="badge badge-core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Core</span></td>
+          <td><span class="badge badge-muted">Text</span></td>
+          <td class="muted">required · ≤ 20 chars</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg class="dots-btn" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">Manufacturing Unit</div><div class="cell-sub mono">manufacturing_unit_id</div></td>
+          <td><span class="badge badge-core"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Core</span></td>
+          <td><span class="badge badge-muted">Unit-ref</span></td>
+          <td class="muted">required · active plant</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg class="dots-btn" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">Manufacturing Date</div><div class="cell-sub mono">mfg_date</div></td>
+          <td><span class="badge badge-super">Super</span></td>
+          <td><span class="badge badge-muted">Date</span></td>
+          <td class="muted">required</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v2</td>
+          <td><svg class="dots-btn" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">Expiry Date</div><div class="cell-sub mono">expiry_date</div></td>
+          <td><span class="badge badge-super">Super</span></td>
+          <td><span class="badge badge-muted">Date</span></td>
+          <td class="muted">required · &gt; mfg_date</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v2</td>
+          <td><svg class="dots-btn" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">MRP</div><div class="cell-sub mono">mrp</div></td>
+          <td><span class="badge badge-super">Super</span></td>
+          <td><span class="badge badge-muted">Decimal</span></td>
+          <td class="muted">min 0 · editable post-commit</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg class="dots-btn" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">Distributor Code</div><div class="cell-sub mono">distributor_code</div></td>
+          <td><span class="badge badge-tenant">Tenant</span></td>
+          <td><span class="badge badge-muted">Text</span></td>
+          <td class="muted mono" style="font-size:11.5px">regex · ^D-[0-9]{4}$</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg class="dots-btn" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">Plant Shift Code</div><div class="cell-sub mono">plant_shift_code</div></td>
+          <td><span class="badge badge-tenant">Tenant</span></td>
+          <td><span class="badge badge-muted">Single-select</span></td>
+          <td class="muted">optional · 3 options</td>
+          <td><span class="badge badge-info"><span class="bd" style="background:var(--blue)"></span>Promotion pending</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg class="dots-btn" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr class="row-off">
+          <td><div class="cell-strong">Regional Sub-brand</div><div class="cell-sub mono">regional_subbrand</div></td>
+          <td><span class="badge badge-tenant">Tenant</span></td>
+          <td><span class="badge badge-muted">Single-select</span></td>
+          <td class="muted">optional</td>
+          <td><span class="status-dot"><span class="d d-off"></span>Deactivated</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg class="dots-btn" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="card-foot">
+      <span class="cell-sub">8 fields · 2 Core · 3 Super · 3 Tenant Custom · 1 deactivated (hidden from new forms, retained in history)</span>
+      <span style="margin-left:auto" class="cell-sub">Page 1 of 1</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('histToggle').addEventListener('click', function () {
+    this.classList.toggle('on');
+  });
+</script>
+</body>
+</html>

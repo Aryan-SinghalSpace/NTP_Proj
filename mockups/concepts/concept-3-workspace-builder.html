@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Concept 3 · Workspace · Workflow Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#f6f5fb; --panel:#ffffff; --soft:#f4f2fb; --border:#eae7f3; --border2:#e0dcef;
+    --text:#1c1830; --muted:#6e6885; --subtle:#9c95b3;
+    --accent:#7c3aed; --accent-soft:#f1ebfd; --accent-fg:#6d28d9;
+    --teal:#0d9488; --amber:#d97706; --red:#e11d48; --green:#16a34a;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;-webkit-font-smoothing:antialiased}
+  .conceptbar{display:flex;align-items:center;gap:16px;height:40px;padding:0 16px;background:#16131f;color:#cfc9da;font-size:12.5px}
+  .conceptbar .cb-t{font-weight:700;color:#fff}
+  .conceptbar nav{display:flex;gap:3px}
+  .conceptbar a{padding:4px 10px;border-radius:6px;color:#a79fb8}
+  .conceptbar a:hover{background:#241f30;color:#fff}
+  .conceptbar a.active{background:#322b42;color:#fff}
+
+  .ws{display:grid;grid-template-columns:60px 248px 1fr;height:calc(100vh - 40px)}
+  /* icon rail */
+  .rail{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px}
+  .rail .lg{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#0d9488);color:#fff;display:grid;place-items:center;font-weight:800;margin-bottom:10px}
+  .rail .ri{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:var(--subtle)}
+  .rail .ri:hover{background:var(--soft);color:var(--text)}
+  .rail .ri.on{background:var(--accent-soft);color:var(--accent-fg)}
+  .rail .sp{flex:1}
+  .rail .av{width:32px;height:32px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px}
+  /* contextual panel */
+  .panel{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:auto}
+  .ph{padding:18px 16px 12px}
+  .ph .pt{font-size:16px;font-weight:750}
+  .ph .ps{font-size:12px;color:var(--subtle);margin-top:2px}
+  .psearch{margin:0 12px 10px;display:flex;align-items:center;gap:8px;height:34px;padding:0 11px;background:var(--soft);border:1px solid var(--border);border-radius:9px;color:var(--subtle);font-size:12.5px}
+  .pg{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--subtle);font-weight:700;padding:12px 18px 5px}
+  .pi{display:flex;align-items:center;gap:10px;margin:1px 8px;padding:8px 10px;border-radius:9px;color:var(--muted);font-weight:550;font-size:13.5px}
+  .pi:hover{background:var(--soft);color:var(--text)}
+  .pi.on{background:var(--accent-soft);color:var(--accent-fg);font-weight:650}
+  .pi .c{margin-left:auto;font-size:11px;font-weight:700;background:var(--soft);color:var(--muted);padding:1px 7px;border-radius:99px}
+  .pi.on .c{background:#fff;color:var(--accent-fg)}
+  /* palette node icon */
+  .pnic{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex-shrink:0}
+  .pnic svg{width:14px;height:14px}
+  .ic-trigger{background:#e7eefe;color:#2563eb}
+  .ic-logic{background:var(--accent-soft);color:var(--accent-fg)}
+  .ic-id{background:#e7f6f3;color:var(--teal)}
+  .ic-data{background:#fbf0dd;color:var(--amber)}
+  .ic-adv{background:var(--soft);color:var(--muted)}
+  /* content */
+  .main{display:flex;flex-direction:column;overflow:hidden}
+  .bhead{display:flex;align-items:center;gap:12px;padding:16px 24px;border-bottom:1px solid var(--border);background:var(--panel)}
+  .bhead h1{font-size:18px;font-weight:780;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+  .pill{font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;display:inline-flex;align-items:center;gap:6px}
+  .pill-draft{background:#fbf0dd;color:var(--amber)}
+  .pill-draft .bd{width:6px;height:6px;border-radius:50%;background:var(--amber)}
+  .bhs{margin-left:6px;color:var(--subtle);font-size:12px}
+  .bactions{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px;border-radius:10px;background:var(--panel);border:1px solid var(--border2);color:var(--text);font-weight:600;font-size:12.5px;cursor:pointer}
+  .btn:hover{background:var(--soft)}
+  .btn svg{width:15px;height:15px}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn-primary:hover{background:var(--accent-fg)}
+  .vbar{width:1px;height:22px;background:var(--border2)}
+  /* canvas region split */
+  .bbody{flex:1;display:grid;grid-template-columns:1fr 304px;overflow:hidden}
+  .canvas{position:relative;overflow:auto;background:
+    radial-gradient(circle, var(--border2) 1.1px, transparent 1.1px);
+    background-size:22px 22px;background-color:var(--bg)}
+  .canvas-inner{position:relative;width:980px;height:460px;margin:26px}
+  /* nodes */
+  .node{position:absolute;width:196px;background:var(--panel);border:1px solid var(--border2);border-radius:14px;box-shadow:0 1px 2px rgba(28,24,48,.04);padding:11px 12px}
+  .node.sel{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .n-head{display:flex;align-items:center;gap:9px}
+  .n-ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+  .n-ic svg{width:15px;height:15px}
+  .n-title{font-weight:700;font-size:13px;letter-spacing:-.01em}
+  .n-kind{font-size:10.5px;color:var(--subtle);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:1px}
+  .n-body{margin-top:9px;padding-top:9px;border-top:1px solid var(--border)}
+  .nb-row{font-size:11.5px;color:var(--muted);font-weight:550;line-height:1.5}
+  .port{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--panel);border:2px solid var(--border2);top:50%;transform:translateY(-50%)}
+  .port.in{left:-6px}
+  .port.out{right:-6px}
+  .port.on{border-color:var(--accent);background:var(--accent)}
+  .edge{fill:none;stroke:var(--border2);stroke-width:2}
+  .edge.active{stroke:var(--accent);stroke-width:2.4}
+  .edge-label{font-size:11px;font-weight:700;font-family:var(--mono)}
+  /* canvas controls */
+  .canvas-toolbar{position:absolute;left:18px;bottom:18px;display:flex;gap:4px;background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:4px;box-shadow:0 2px 8px rgba(28,24,48,.06)}
+  .canvas-toolbar button{width:30px;height:30px;border:0;background:transparent;border-radius:8px;color:var(--muted);display:grid;place-items:center;cursor:pointer}
+  .canvas-toolbar button:hover{background:var(--soft);color:var(--text)}
+  /* inspector */
+  .inspector{background:var(--panel);border-left:1px solid var(--border);overflow:auto;display:flex;flex-direction:column}
+  .insp-head{display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid var(--border)}
+  .insp-sec{padding:14px 16px;border-bottom:1px solid var(--border)}
+  .insp-sec h4{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--subtle);font-weight:700;margin-bottom:10px}
+  .field{margin-bottom:10px}
+  .field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin-bottom:4px}
+  .input{width:100%;height:34px;padding:0 11px;border:1px solid var(--border2);border-radius:9px;background:var(--soft);font-family:inherit;font-size:12.5px;color:var(--text)}
+  .input:focus{outline:none;border-color:var(--accent);background:#fff}
+  .tag-field{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border:1px solid var(--border2);border-radius:8px;padding:4px 8px;font-size:11.5px;font-weight:600}
+  .ttype{font-family:var(--mono);font-size:10px;font-weight:600;background:var(--accent-soft);color:var(--accent-fg);padding:1px 6px;border-radius:5px}
+  .btn-soft{background:var(--accent-soft);border-color:var(--accent-soft);color:var(--accent-fg)}
+  .btn-soft:hover{background:#e8defb}
+  .help{font-size:11px;color:var(--subtle);margin-top:8px;line-height:1.5}
+  .select-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--soft);font-size:12px;font-weight:550;color:var(--text);margin-bottom:7px}
+  .select-row:last-child{margin-bottom:0}
+  .select-row svg{margin-left:auto;flex-shrink:0}
+  .rule-chk{width:14px;height:14px;flex-shrink:0;color:var(--green)}
+  svg{display:block}
+</style>
+</head>
+<body data-concept="3" data-page="builder">
+<script src="../assets/nav.js"></script>
+
+<div class="ws">
+  <!-- icon rail -->
+  <div class="rail">
+    <div class="lg">T</div>
+    <div class="ri" title="Home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div>
+    <div class="ri" title="Master Data"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+    <div class="ri" title="Fields"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/></svg></div>
+    <div class="ri on" title="Workflows"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M8.5 6H13a3 3 0 0 1 3 3M8.5 18H13a3 3 0 0 0 3-3"/></svg></div>
+    <div class="ri" title="Events"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l2 7 4-14 2 7h6"/></svg></div>
+    <div class="ri" title="Labels"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 3 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.6z"/></svg></div>
+    <div class="sp"></div>
+    <div class="av">RS</div>
+  </div>
+
+  <!-- contextual panel · node palette -->
+  <div class="panel">
+    <div class="ph"><div class="pt">Nodes</div><div class="ps">Drag onto canvas</div></div>
+    <div class="psearch"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg> Search nodes</div>
+
+    <div class="pg">Triggers</div>
+    <div class="pi"><span class="pnic ic-trigger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg></span> Scan</div>
+    <div class="pi"><span class="pnic ic-trigger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg></span> Upload</div>
+    <div class="pi"><span class="pnic ic-trigger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></span> API call</div>
+
+    <div class="pg">Logic</div>
+    <div class="pi"><span class="pnic ic-logic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span> Validate</div>
+    <div class="pi"><span class="pnic ic-logic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M8.5 6H13a3 3 0 0 1 3 3M8.5 18H13a3 3 0 0 0 3-3"/></svg></span> Branch</div>
+    <div class="pi"><span class="pnic ic-logic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v4H4zM4 16h16v4H4zM12 8v8"/></svg></span> Dynamic Route</div>
+    <div class="pi"><span class="pnic ic-logic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg></span> Transform</div>
+
+    <div class="pg">Identity &amp; Output</div>
+    <div class="pi"><span class="pnic ic-id"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 9v6M10 9v6M13 9v6M17 9v6"/></svg></span> Generate ID</div>
+    <div class="pi"><span class="pnic ic-id"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 3 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.6z"/><circle cx="8" cy="8" r="1.3"/></svg></span> Generate Label</div>
+
+    <div class="pg">Data &amp; Flow</div>
+    <div class="pi"><span class="pnic ic-data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span> Record Event</div>
+    <div class="pi"><span class="pnic ic-data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span> Approve</div>
+    <div class="pi"><span class="pnic ic-data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span> Notify</div>
+
+    <div class="pg">Advanced</div>
+    <div class="pi"><span class="pnic ic-adv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span> Loop</div>
+    <div class="pi"><span class="pnic ic-adv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h6v6H4zM14 5h6v6h-6zM9 16h6v3H9z"/></svg></span> Sub-workflow</div>
+  </div>
+
+  <!-- content -->
+  <div class="main">
+    <div class="bhead">
+      <h1>FMCG Batch Dispatch
+        <span class="pill pill-draft"><span class="bd"></span>Draft · v3</span>
+      </h1>
+      <span class="bhs">Acme Foods · autosaved 30s ago</span>
+      <div class="bactions">
+        <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg> Dry run</button>
+        <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Validate</button>
+        <div class="vbar"></div>
+        <button class="btn">Save draft</button>
+        <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Publish</button>
+      </div>
+    </div>
+
+    <div class="bbody">
+      <!-- canvas -->
+      <div class="canvas">
+        <div class="canvas-inner">
+          <!-- edges -->
+          <svg width="980" height="460" viewBox="0 0 980 460" style="position:absolute;left:0;top:0;pointer-events:none;background:transparent">
+            <path class="edge active" d="M214,146 C250,146 254,146 290,146" />
+            <path class="edge active" d="M488,146 C524,146 528,150 564,150" />
+            <path class="edge" d="M762,134 C812,134 736,62 786,62" />
+            <path class="edge" d="M762,176 C812,176 736,300 786,300" />
+            <text class="edge-label" x="784" y="100" fill="var(--green)">Yes</text>
+            <text class="edge-label" x="784" y="262" fill="var(--red)">No</text>
+          </svg>
+
+          <!-- Node 1: Scan trigger -->
+          <div class="node" style="left:18px;top:104px">
+            <div class="n-head"><span class="n-ic ic-trigger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg></span><div><div class="n-title">Scan</div><div class="n-kind">Trigger</div></div></div>
+            <div class="n-body"><div class="nb-row">GS1 DataMatrix · unit label</div></div>
+            <span class="port out"></span>
+          </div>
+
+          <!-- Node 2: Validate (selected) -->
+          <div class="node sel" style="left:290px;top:104px">
+            <div class="n-head"><span class="n-ic ic-logic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span><div><div class="n-title">Validate batch</div><div class="n-kind">Validate</div></div></div>
+            <div class="n-body"><div class="nb-row">3 fields · 4 rules · strict typing</div></div>
+            <span class="port in on"></span>
+            <span class="port out on"></span>
+          </div>
+
+          <!-- Node 3: Branch -->
+          <div class="node" style="left:564px;top:100px">
+            <div class="n-head"><span class="n-ic ic-logic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M8.5 6H13a3 3 0 0 1 3 3M8.5 18H13a3 3 0 0 0 3-3"/></svg></span><div><div class="n-title">QC passed?</div><div class="n-kind">Branch</div></div></div>
+            <div class="n-body"><div class="nb-row" style="color:var(--green)">▸ Yes — qc_status = released</div><div class="nb-row" style="color:var(--red)">▸ No — otherwise</div></div>
+            <span class="port in"></span>
+            <span class="port out" style="top:42px"></span>
+            <span class="port out" style="top:auto;bottom:20px;transform:none"></span>
+          </div>
+
+          <!-- Node 4: Generate Label (Yes) -->
+          <div class="node" style="left:786px;top:18px">
+            <div class="n-head"><span class="n-ic ic-id"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 3 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.6z"/></svg></span><div><div class="n-title">Generate Label</div><div class="n-kind">Output · Zint</div></div></div>
+            <div class="n-body"><div class="nb-row">Template: Case GS1-128</div></div>
+            <span class="port in"></span>
+            <span class="port out"></span>
+          </div>
+
+          <!-- Node 5: Notify QA (No) -->
+          <div class="node" style="left:786px;top:256px">
+            <div class="n-head"><span class="n-ic ic-data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span><div><div class="n-title">Notify QA</div><div class="n-kind">Notify · email</div></div></div>
+            <div class="n-body"><div class="nb-row">Hold raised → QA queue</div></div>
+            <span class="port in"></span>
+            <span class="port out"></span>
+          </div>
+        </div>
+
+        <div class="canvas-toolbar">
+          <button title="Zoom in"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button title="Zoom out"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg></button>
+          <button title="Fit"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></button>
+        </div>
+      </div>
+
+      <!-- inspector -->
+      <aside class="inspector">
+        <div class="insp-head">
+          <span class="n-ic ic-logic" style="width:32px;height:32px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>
+          <div>
+            <div style="font-weight:750;font-size:14px">Validate batch</div>
+            <div style="font-size:11.5px;color:var(--subtle)">node_8f3a · Validate</div>
+          </div>
+        </div>
+
+        <div class="insp-sec">
+          <h4>General</h4>
+          <div class="field"><label>Node name</label><input class="input" value="Validate batch" /></div>
+          <div class="field"><label>Description</label><input class="input" value="Type &amp; rule check before dispatch" /></div>
+        </div>
+
+        <div class="insp-sec">
+          <h4>Bound fields · strict typing</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px">
+            <span class="tag-field">Batch Number <span class="ttype">text</span></span>
+            <span class="tag-field">Expiry Date <span class="ttype">date</span></span>
+            <span class="tag-field">Manufacturing Unit <span class="ttype">unit-ref</span></span>
+          </div>
+          <button class="btn btn-soft" style="width:100%;justify-content:center"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Bind field</button>
+          <div class="help">Only fields whose type matches the rule input can be bound — mismatched types are blocked.</div>
+        </div>
+
+        <div class="insp-sec">
+          <h4>Validation rules</h4>
+          <div class="select-row"><svg class="rule-chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg><span>Batch Number — required, ≤ 20 chars</span></div>
+          <div class="select-row"><svg class="rule-chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg><span>Expiry Date — required, &gt; Mfg Date</span></div>
+          <div class="select-row"><svg class="rule-chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l5 5L20 7"/></svg><span>Mfg Unit — required, active plant</span></div>
+        </div>
+
+        <div class="insp-sec">
+          <h4>Failure handling</h4>
+          <div class="field"><label>Retry count</label><input class="input" value="3" /></div>
+          <div class="field"><label>Backoff</label><div class="select-row" style="margin:0;background:#fff"><span>Exponential · 2s base</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--subtle)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div></div>
+          <div class="field"><label>On error</label><div class="select-row" style="margin:0;background:#fff"><span>Halt &amp; route → Notify QA</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--subtle)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+</body>
+</html>

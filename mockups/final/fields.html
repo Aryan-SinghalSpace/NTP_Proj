@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Field Library · Tracewell (Command × Bento)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="assets/system.css" />
+</head>
+<body>
+
+<!-- mock strip -->
+<div class="mockstrip">
+  <span class="b"><span class="d"></span> Tracewell</span>
+  <span class="tag">Chosen direction · Command × Bento</span>
+  <span class="sp"></span>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="builder.html">Builder</a>
+  <a href="fields.html" style="color:#fff">Field Library</a>
+  <a href="../concepts.html">▦ All concepts</a>
+</div>
+
+<!-- top nav (command) -->
+<div class="topnav">
+  <div class="brand"><span class="lg">T</span> Tracewell</div>
+  <nav class="navtabs">
+    <a href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg> Overview</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7L12 12l8.7-5"/></svg> Master Data</a>
+    <a class="on" href="fields.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/></svg> Field Library</a>
+    <a href="builder.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M8.5 6H13a3 3 0 0 1 3 3M8.5 18H13a3 3 0 0 0 3-3"/></svg> Workflows</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l2 7 4-14 2 7h6"/></svg> Events</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0l-7.2-7.2A2 2 0 0 1 3 12V5a2 2 0 0 1 2-2h7a2 2 0 0 1 1.4.6l7.2 7.2a2 2 0 0 1 0 2.6z"/></svg> Labels</a>
+  </nav>
+  <div class="cmdk"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg> Search or run a command… <span class="k">⌘K</span></div>
+  <button class="iconbtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="dot"></span></button>
+  <div class="avatar">RS</div>
+</div>
+
+<div class="wrap">
+  <div class="pagehead">
+    <div>
+      <h1>Field Library</h1>
+      <div class="sub">Core, Super and Tenant Custom fields · strongly-typed, versioned, deactivate-not-delete</div>
+    </div>
+    <div class="actions">
+      <button class="btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/></svg> Request promotion</button>
+      <button class="btn btn-grad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg> Add custom field</button>
+    </div>
+  </div>
+
+  <!-- entity tabs -->
+  <div class="tabs">
+    <div class="tab">Product</div>
+    <div class="tab on">Batch</div>
+    <div class="tab">Unit</div>
+    <div class="tab">Event</div>
+    <div class="tab">Label</div>
+  </div>
+
+  <!-- toolbar -->
+  <div class="toolbar">
+    <div class="filter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg> Tier: All <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+    <div class="filter">Type: All <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+    <div class="filter">Status: Active <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+    <div class="switch" id="histToggle" style="margin-left:auto">
+      <span class="track"></span> View historic records
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr><th>Field</th><th>Tier</th><th>Type</th><th>Validation</th><th>Status</th><th>Ver.</th><th style="width:40px"></th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><div class="cell-strong">Batch Number</div><div class="cell-sub mono">batch_number</div></td>
+          <td><span class="badge badge-core badge-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Core</span></td>
+          <td><span class="badge badge-muted">Text</span></td>
+          <td class="muted">required · ≤ 20 chars</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--subtle)" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">Manufacturing Unit</div><div class="cell-sub mono">manufacturing_unit_id</div></td>
+          <td><span class="badge badge-core badge-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> Core</span></td>
+          <td><span class="badge badge-muted">Unit-ref</span></td>
+          <td class="muted">required · active plant</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--subtle)" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">Manufacturing Date</div><div class="cell-sub mono">mfg_date</div></td>
+          <td><span class="badge badge-super">Super</span></td>
+          <td><span class="badge badge-muted">Date</span></td>
+          <td class="muted">required</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v2</td>
+          <td><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--subtle)" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">Expiry Date</div><div class="cell-sub mono">expiry_date</div></td>
+          <td><span class="badge badge-super">Super</span></td>
+          <td><span class="badge badge-muted">Date</span></td>
+          <td class="muted">required · &gt; mfg_date</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v2</td>
+          <td><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--subtle)" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">MRP</div><div class="cell-sub mono">mrp</div></td>
+          <td><span class="badge badge-super">Super</span></td>
+          <td><span class="badge badge-muted">Decimal</span></td>
+          <td class="muted">min 0 · editable post-commit</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--subtle)" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">Distributor Code</div><div class="cell-sub mono">distributor_code</div></td>
+          <td><span class="badge badge-tenant">Tenant</span></td>
+          <td><span class="badge badge-muted">Text</span></td>
+          <td class="muted">regex · ^D-[0-9]{4}$</td>
+          <td><span class="status-dot"><span class="d d-on"></span>Active</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--subtle)" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr>
+          <td><div class="cell-strong">Plant Shift Code</div><div class="cell-sub mono">plant_shift_code</div></td>
+          <td><span class="badge badge-tenant">Tenant</span></td>
+          <td><span class="badge badge-muted">Single-select</span></td>
+          <td class="muted">optional · 3 options</td>
+          <td><span class="badge badge-info"><span class="bd" style="background:var(--info)"></span>Promotion pending</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--subtle)" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+        <tr class="row-off">
+          <td><div class="cell-strong">Regional Sub-brand</div><div class="cell-sub mono">regional_subbrand</div></td>
+          <td><span class="badge badge-tenant" style="opacity:.7">Tenant</span></td>
+          <td><span class="badge badge-muted">Single-select</span></td>
+          <td>optional</td>
+          <td><span class="status-dot"><span class="d d-off"></span>Deactivated</span></td>
+          <td class="mono cell-sub">v1</td>
+          <td><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--subtle)" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="display:flex;align-items:center;padding:13px 16px;border-top:1px solid var(--border)">
+      <span class="cell-sub">8 fields · 2 Core · 3 Super · 3 Tenant Custom · 1 deactivated (hidden from new forms, retained in history)</span>
+      <span style="margin-left:auto" class="cell-sub">Page 1 of 1</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // demo: toggle the historic-records switch
+  document.getElementById('histToggle').addEventListener('click', function () {
+    this.classList.toggle('on');
+  });
+</script>
+</body>
+</html>
