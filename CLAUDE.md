@@ -130,7 +130,8 @@ _Resolved 2026-05-31: backend language (TS/NestJS), workflow engine (Temporal), 
 - `docs/decisions.md` — append-only log of decisions taken across sessions.
 - `docs/architecture.md` — system topology, Temporal interpreter internals, multi-tenant RLS model, supporting services (v0.1, 2026-05-31).
 - `docs/datakart-gs1-analysis.md` — reference analysis of GS1 India's DataKart + the GS1 BRD/RFP; what to learn vs. differentiate (2026-06-21). GS1 = opt-in conformance mode.
+- `docs/data-model.md` — logical data model: entities, RLS, meta-model/Field Library, partitioned events, audit chain, opt-in GS1 allocation, ER diagram (v0.1, 2026-06-21).
 - `docs/security.md` — to be created at security session.
-- `docs/data-model.md` — to be created (recommended next doc; schema/DDL/ER).
+- `mockups/` — static HTML UI mockups. Chosen direction: **Command × Bento** (`mockups/final/`); 5 concept explorations in `mockups/concepts/`.
 
 > **Confidential reference (git-ignored, local-only):** `Hakuna Matata/` and `DK-2-Prod-Features--main/` are third-party DataKart material — study as reference, **never clone, never commit/push**.
