@@ -4,6 +4,23 @@
 
 ---
 
+## 2026-06-21 — DataKart/GS1 reference analysis: stay the course, adopt targeted enrichments
+
+**Decision**: Studied GS1 India's live **DataKart (DK 2.0)** system and the original **GS1 BRD/RFP** (the `Hakuna Matata` and `DK-2-Prod-Features--main` folders) as **reference only — never to be cloned**. Outcome: **continue with our current PRD/architecture unchanged in direction**; the analysis validates rather than challenges it. Adopt these enrichments:
+
+1. **GS1 = opt-in Conformance Mode (Part C), not the spine.** Provide GS1 key validators/encoders (GTIN/GLN/SSCC/GCN/GRAI/GIAI, Mod-10 check digit, AI encoding), Digital Link resolver, EPCIS export — all per-tenant opt-in. GTIN stays a *validated attribute on the UUID*; GTIN allocation is **append-only once committed** (DataKart deallocates/reuses — we do not).
+2. **Security baseline additions** (folded into PRD §11): **CERT-In-empanelled VAPT** as the release gate; identity governance with provisioning/role-change history + **single active session**; **data-residency option** for regulated tenants; **authenticated internal service calls** (no network-isolation-only); **fail-closed** idempotency.
+3. **Borrowed engineering patterns** (concepts, not code): single reusable permission-resolver; scoped developer-console API keys; atomic job-claim (`FOR UPDATE SKIP LOCKED`) for async work; stateless queue-fed renderer (already our Zint sidecar).
+4. **Anti-patterns to design away from** (their failures → our invariants are the antidote): app-only tenant isolation (→ our RLS), secret sprawl/secrets-in-git (→ KMS/vault), fire-and-forget eventing with no DLQ (→ Temporal + outbox), hard-coded event types (→ workflows-as-data), 49-repo sprawl + naming drift (→ modular monolith), shell/SQL injection surfaces (→ structured args).
+
+**Reference folders are CONFIDENTIAL** (third-party IP, signed contracts, financials) and have been **git-ignored** — never commit or push them.
+
+**Rationale**: Our traceability-first, identity-pluggable, RLS-isolated, durably-executed, three-tier-configurable design is the stronger fit for "customised trace for any user," and is structurally the negation of DataKart's biggest weaknesses. Full analysis: `docs/datakart-gs1-analysis.md`.
+
+**Decided by**: Platform Super Admin.
+
+---
+
 ## 2026-05-31 — Core tech stack: TypeScript/NestJS, Temporal, Postgres + Redis + S3
 
 **Decision**: The platform's foundational stack is set as follows.

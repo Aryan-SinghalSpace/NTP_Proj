@@ -52,3 +52,8 @@ Thumbs.db
 .data/
 docker-data/
 tmp/
+
+# Third-party CONFIDENTIAL reference material — local read-only only.
+# Never commit/push: someone else's IP, signed contracts, financial docs.
+/Hakuna Matata/
+/DK-2-Prod-Features--main/

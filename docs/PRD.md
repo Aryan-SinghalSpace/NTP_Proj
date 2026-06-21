@@ -5,8 +5,8 @@
 
 | | |
 |---|---|
-| **Version** | v0.4 (consolidated for Claude Code) |
-| **Status** | Draft, integrating stakeholder feedback from v0.2 |
+| **Version** | v0.5 (GS1/DataKart analysis enrichments) |
+| **Status** | Draft, integrating stakeholder feedback from v0.2 + reference-analysis enrichments |
 | **Owner** | Platform Super Admin / Product |
 | **Audience** | Engineering (Claude Code sessions), Design, QA, Security, Stakeholders |
 
@@ -457,7 +457,8 @@ A detailed Security Architecture Document will be produced in a dedicated sessio
 - **Authentication**: OAuth 2.0 / OIDC; SSO (Google, Microsoft) and email/password; MFA mandatory for all admin tiers.
 - **Authorization**: role-based plus attribute-based access control; every API call checks tenant scope and role.
 - **Tenant isolation**: row-level security so no tenant can access another tenant's data, even via API misuse.
-- **Audit log**: immutable, append-only, signed; covers every configuration and data mutation, including Super Field changes, promotion approvals, FEFO overrides, and GTIN locks.
+- **Audit log**: immutable, append-only, signed; covers every configuration and data mutation by **both user and system actions**, including Super Field changes, promotion approvals, FEFO overrides, and GTIN locks.
+- **Identity governance**: full identity lifecycle (provision → activate → assign/change role → deactivate → de-provision); **provisioning/role-change history reports** per identity; **single active session** enforced at the IdP.
 - **Encryption**: AES-256 at rest, TLS 1.3 in transit; optional field-level encryption for sensitive fields.
 - **Secrets management**: managed KMS / vault; no secrets in code or committed config.
 - **API security**: per-tenant rate limiting; scoped API keys; signed webhooks.
@@ -465,9 +466,11 @@ A detailed Security Architecture Document will be produced in a dedicated sessio
 - **Input validation**: every API input validated against JSON Schema.
 - **Optional cryptographically signed serials/batches** for counterfeit detection at scan time.
 - **Privacy**: alignment with India's DPDP Act and GDPR-style rights (export, deletion, consent) where consumer data is involved.
+- **Data residency option**: for regulated tenants the model supports keeping a tenant's data in a separate store/region while execution stays central (DPDP-aligned). Single-region in v1; the option is designed in, not retrofitted.
+- **Integrator access & internal auth**: scoped developer-console API keys/secrets with per-key rate limits and full request logging; **internal service-to-service calls are authenticated** (never rely on network isolation alone). Idempotency/dedup guards on capture **fail closed**.
 - **SOC 2 foundations** (change management, access reviews, logging) laid from the start; certification targeted in a later year.
 - **CI security**: dependency and container scanning on every build.
-- **VAPT (Vulnerability Assessment and Penetration Testing)**: required pre-launch and recurring annually. A third-party VAPT engagement is a release blocker before each major version goes to production.
+- **VAPT (Vulnerability Assessment and Penetration Testing)**: required pre-launch and recurring annually, performed by a **CERT-In-empanelled** third-party agency; release is gated on the VAPT certificate before each major version goes to production.
 
 ---
 
@@ -559,9 +562,11 @@ Logical core entities (each UUID-keyed, tenant-scoped where applicable, versione
 
 ---
 
-## 16. GS1 Digital Link Resolver — Decision
+## 16. GS1 Conformance Mode & Digital Link Resolver
 
-**Recommendation**: own the resolver in the long run, built fully GS1-conformant so it interoperates with GS1 India's national resolver. Owning it gives control of the consumer experience, latency and reliability at scale, multi-tenant scan analytics, and instant recall-state flips. Conformance preserves interoperability.
+**GS1 Conformance Mode (opt-in, Part C).** GS1 support is a per-tenant opt-in module, never the spine. When enabled it provides GS1 **key validators/encoders** (GTIN-8/12/13/14, GLN, SSCC, GCN, GRAI, GIAI) using the **Modulo-10 check digit** over `GCP + item reference + check digit`; **Application Identifier** encoding for GS1-128 / DataMatrix; a **GS1 Digital Link** resolver; and **EPCIS-style event export**. In all cases the GTIN remains a *validated attribute on top of the UUID identity* (never the primary key), and GTIN allocation is **append-only once committed** — no deallocate/reuse. (Note: GS1 India supports ~517 identifier types; we implement the common keys and keep the set extensible.) Rationale and prior-system comparison: `docs/datakart-gs1-analysis.md`.
+
+**Digital Link Resolver — Recommendation**: own the resolver in the long run, built fully GS1-conformant so it interoperates with GS1 India's national resolver. Owning it gives control of the consumer experience, latency and reliability at scale, multi-tenant scan analytics, and instant recall-state flips. Conformance preserves interoperability.
 
 **Pragmatic phasing**: v1 may rely on GS1 India's national resolver to reach market quickly; a later phase ships the platform's own conformant resolver and migrates traffic.
 
@@ -625,3 +630,4 @@ These were raised but not yet answered. Default assumptions are noted; Claude Co
 | v0.2 | 16 May 2026 | Rewrite as configurable platform; UUID-internal identity; field type system; phasing. |
 | v0.3 | 24 May 2026 | Three-tier Field Library Model added. |
 | v0.4 | 30 May 2026 | Stakeholder annotations integrated: GTIN immutability, FEFO advisory, multi-plant + multi-dealer, two-name (Manufacturer + Brand Owner), VAPT, Scanning App as first-class section. |
+| v0.5 | 21 Jun 2026 | Enrichments from DataKart/GS1 reference analysis: GS1 Conformance Mode scope (§16); security additions (CERT-In VAPT gate, identity governance + single-session, data-residency option, authenticated internal calls, fail-closed idempotency); audit covers user + system actions. See `docs/datakart-gs1-analysis.md`. |

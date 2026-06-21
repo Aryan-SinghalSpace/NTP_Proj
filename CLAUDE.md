@@ -129,5 +129,8 @@ _Resolved 2026-05-31: backend language (TS/NestJS), workflow engine (Temporal), 
 - `docs/PRD.md` — full Product Requirements Document. Read on demand.
 - `docs/decisions.md` — append-only log of decisions taken across sessions.
 - `docs/architecture.md` — system topology, Temporal interpreter internals, multi-tenant RLS model, supporting services (v0.1, 2026-05-31).
+- `docs/datakart-gs1-analysis.md` — reference analysis of GS1 India's DataKart + the GS1 BRD/RFP; what to learn vs. differentiate (2026-06-21). GS1 = opt-in conformance mode.
 - `docs/security.md` — to be created at security session.
 - `docs/data-model.md` — to be created (recommended next doc; schema/DDL/ER).
+
+> **Confidential reference (git-ignored, local-only):** `Hakuna Matata/` and `DK-2-Prod-Features--main/` are third-party DataKart material — study as reference, **never clone, never commit/push**.
