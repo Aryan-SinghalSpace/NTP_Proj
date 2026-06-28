@@ -6,12 +6,20 @@ This is your project starter kit for working with **Claude Code**.
 
 ```
 .
-├── CLAUDE.md            # Short briefing — Claude Code auto-loads this every session
+├── CLAUDE.md            # Briefing — Claude Code auto-loads this every session
 ├── README.md            # This file
-└── docs/
-    ├── PRD.md           # Full Product Requirements Document
-    └── decisions.md     # Append-only log of decisions
+├── docs/                # Documentation, UI mockups, reference material
+│   ├── PRD.md, decisions.md, architecture.md, data-model.md
+│   ├── datakart-gs1-analysis.md, SETUP.md
+│   ├── mockups/         # Static HTML UI mockups (chosen direction: Command × Bento)
+│   └── reference/       # Confidential third-party reference (git-ignored)
+└── code/                # The application monorepo (pnpm + Turborepo)
+    ├── apps/            # api (NestJS), web (Next.js)
+    ├── packages/        # field-types (shared Zod type system)
+    └── infra/           # docker-compose (Postgres / Redis / Temporal / MinIO)
 ```
+
+> **Two-folder split (2026-06-21):** everything documentation lives under `docs/`, all runnable code under `code/`. Run `pnpm` commands from `code/`. See `docs/SETUP.md`.
 
 ## How to use it
 

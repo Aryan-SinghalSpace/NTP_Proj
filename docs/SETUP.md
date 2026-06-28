@@ -12,9 +12,12 @@
 | **pnpm** | 9.x | `corepack enable` (ships with Node) then it's available |
 | **Docker** | recent | for local Postgres / Redis / Temporal / MinIO (optional for type/unit work) |
 
+> **Run every command below from the `code/` directory** — the monorepo lives there. Either `cd code` first, or prefix with `pnpm -C code …`.
+
 ## 1. Install dependencies
 
 ```bash
+cd code                  # the monorepo lives here
 corepack enable          # enables pnpm from the version in package.json
 pnpm install             # installs the whole workspace
 pnpm --filter @tracewell/field-types build   # build the shared package first

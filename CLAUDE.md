@@ -132,20 +132,27 @@ _Resolved 2026-05-31: backend language (TS/NestJS), workflow engine (Temporal), 
 - `docs/datakart-gs1-analysis.md` — reference analysis of GS1 India's DataKart + the GS1 BRD/RFP; what to learn vs. differentiate (2026-06-21). GS1 = opt-in conformance mode.
 - `docs/data-model.md` — logical data model: entities, RLS, meta-model/Field Library, partitioned events, audit chain, opt-in GS1 allocation, ER diagram (v0.1, 2026-06-21).
 - `docs/security.md` — to be created at security session.
-- `mockups/` — static HTML UI mockups. Chosen direction: **Command × Bento** (`mockups/final/`); 5 concept explorations in `mockups/concepts/`.
+- `docs/mockups/` — static HTML UI mockups. Chosen direction: **Command × Bento** (`docs/mockups/final/`); 5 concept explorations in `docs/mockups/concepts/`.
 - `docs/SETUP.md` — how to run the codebase locally (install → infra → migrate → run).
 
-## Codebase (scaffold v0, 2026-06-21)
+## Repo layout (reorganised 2026-06-21)
 
-Monorepo (pnpm + Turborepo). See `docs/SETUP.md` to run.
-- `apps/api` — NestJS modular monolith. RLS-aware `TenantDbService`, tenant-context middleware, `/health`, `/fields`. Drizzle ORM + raw-SQL migrations in `apps/api/drizzle`.
-- `apps/web` — Next.js 14 App Router on the Command × Bento Tailwind tokens. Real **Dashboard** page (bento KPIs / event-volume chart / recent events / recall / FEFO) built with **mock data**; Field Library page reads the API when it's up. Reusable shell (`components/TopNav`, `components/icons`) + mock-data layer (`lib/mock`).
-- `packages/field-types` — shared Zod field-type system + GS1 validators (strict typing, both sides).
-- `infra/` — docker-compose (Postgres + RLS app role, Redis, Temporal + UI, MinIO).
+Two top-level folders keep docs and code cleanly separated:
+- **`docs/`** — all documentation, the UI mockups (`docs/mockups/`), and git-ignored confidential reference material (`docs/reference/`).
+- **`code/`** — the actual application monorepo (run all `pnpm` commands from here).
+- Root keeps only `CLAUDE.md` (auto-loaded), `README.md`, `.gitignore`.
+
+## Codebase (`code/`, scaffold v0, 2026-06-21)
+
+Monorepo (pnpm + Turborepo) — **run from `code/`** (e.g. `pnpm -C code dev`). See `docs/SETUP.md`.
+- `code/apps/api` — NestJS modular monolith. RLS-aware `TenantDbService`, tenant-context middleware, `/health`, `/fields`. Drizzle ORM + raw-SQL migrations in `code/apps/api/drizzle`.
+- `code/apps/web` — Next.js 14 App Router on the Command × Bento Tailwind tokens. Real **Dashboard** page (bento KPIs / event-volume chart / recent events / recall / FEFO) built with **mock data**; Field Library page reads the API when it's up. Reusable shell (`components/TopNav`, `components/icons`) + mock-data layer (`lib/mock`).
+- `code/packages/field-types` — shared Zod field-type system + GS1 validators (strict typing, both sides).
+- `code/infra/` — docker-compose (Postgres + RLS app role, Redis, Temporal + UI, MinIO).
 - First backend slice: tenant + Field Library meta-model behind Postgres RLS, end to end. Auth is a header stand-in pending OIDC.
 
 **Toolchain installed** (2026-06-21): portable Node 20.20.2 + pnpm 9.12.3. `pnpm install` done; `field-types` builds + tests pass; both apps typecheck; **web runs at http://localhost:3000 (no Docker needed)**.
 
 **Build approach = frontend-first** (see `docs/decisions.md`): build UI pages with mock data first (for stakeholder demos), then backend per page, then connect (swap mock → live API). Docker/infra only needed at the connect step.
 
-> **Confidential reference (git-ignored, local-only):** `Hakuna Matata/` and `DK-2-Prod-Features--main/` are third-party DataKart material — study as reference, **never clone, never commit/push**.
+> **Confidential reference (git-ignored, local-only):** `docs/reference/Hakuna Matata/` and `docs/reference/DK-2-Prod-Features--main/` are third-party DataKart material — study as reference, **never clone, never commit/push**.
