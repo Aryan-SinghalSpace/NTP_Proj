@@ -170,6 +170,108 @@ export const UserIcon = (p: P) => (
     <path d="M4 21a8 8 0 0 1 16 0" />
   </svg>
 );
+export const UsersIcon = (p: P) => (
+  <svg {...S(p)}>
+    <circle cx="9" cy="8" r="3.5" />
+    <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
+    <path d="M16 5.5a3.5 3.5 0 0 1 0 6.8M17.5 20a6.5 6.5 0 0 0-3-5.5" />
+  </svg>
+);
+export const AppsIcon = (p: P) => (
+  <svg {...S(p)}>
+    <circle cx="5" cy="5" r="1.6" />
+    <circle cx="12" cy="5" r="1.6" />
+    <circle cx="19" cy="5" r="1.6" />
+    <circle cx="5" cy="12" r="1.6" />
+    <circle cx="12" cy="12" r="1.6" />
+    <circle cx="19" cy="12" r="1.6" />
+    <circle cx="5" cy="19" r="1.6" />
+    <circle cx="12" cy="19" r="1.6" />
+    <circle cx="19" cy="19" r="1.6" />
+  </svg>
+);
+export const ArrowRightIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </svg>
+);
+export const ChevronLeftIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M15 6l-6 6 6 6" />
+  </svg>
+);
+export const SettingsIcon = (p: P) => (
+  <svg {...S(p)}>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z" />
+  </svg>
+);
+export const ShieldIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M12 3l8 3v6c0 5-3.4 7.7-8 9-4.6-1.3-8-4-8-9V6l8-3z" />
+    <path d="M9 12l2 2 4-4" />
+  </svg>
+);
+export const KeyIcon = (p: P) => (
+  <svg {...S(p)}>
+    <circle cx="8" cy="15" r="4" />
+    <path d="M11 12l9-9M17 6l2 2M15 8l2 2" />
+  </svg>
+);
+export const MailIcon = (p: P) => (
+  <svg {...S(p)}>
+    <rect x="3" y="5" width="18" height="14" rx="2" />
+    <path d="M3.5 6.5L12 13l8.5-6.5" />
+  </svg>
+);
+export const InboxIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M4 13l2.5-8h11L20 13" />
+    <path d="M4 13v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5h-5a3 3 0 0 1-6 0H4z" />
+  </svg>
+);
+export const HistoryIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+    <path d="M3 4v4h4M12 8v4l3 2" />
+  </svg>
+);
+export const BarChartIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
+  </svg>
+);
+export const TruckIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z" />
+    <circle cx="7" cy="18" r="1.8" />
+    <circle cx="17.5" cy="18" r="1.8" />
+  </svg>
+);
+export const ScanIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2" />
+    <path d="M7 12h10" />
+  </svg>
+);
+export const StarIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9 6.8 19.1l1-5.8L3.5 9.2l5.9-.9L12 3z" />
+  </svg>
+);
+export const LogInIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M15 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3" />
+    <path d="M10 17l5-5-5-5M15 12H3" />
+  </svg>
+);
+export const BuildingsIcon = (p: P) => (
+  <svg {...S(p)}>
+    <rect x="3" y="8" width="8" height="13" rx="1" />
+    <rect x="13" y="3" width="8" height="18" rx="1" />
+    <path d="M6 12h2M6 16h2M16 7h2M16 11h2M16 15h2" />
+  </svg>
+);
 
 /**
  * Node-shape glyphs for the workflow builder, keyed by a semantic name.

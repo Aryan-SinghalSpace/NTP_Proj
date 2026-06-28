@@ -31,7 +31,7 @@ export function PendingPage({
             Coming soon
           </span>
           <Link
-            href="/"
+            href="/dashboard"
             className="brand-grad mt-6 inline-flex h-10 items-center gap-2 rounded-xl px-4 text-[13.5px] font-semibold text-white"
           >
             ← Back to dashboard
