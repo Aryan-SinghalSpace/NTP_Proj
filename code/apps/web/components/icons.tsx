@@ -137,6 +137,39 @@ export const DotsIcon = (p: P) => (
     <circle cx="19" cy="12" r="1" />
   </svg>
 );
+export const LockIcon = (p: P) => (
+  <svg {...S(p)}>
+    <rect x="4.5" y="11" width="15" height="9" rx="2" />
+    <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+  </svg>
+);
+export const XIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M6 6l12 12M18 6L6 18" />
+  </svg>
+);
+export const FilterIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M3 5h18M6 12h12M10 19h4" />
+  </svg>
+);
+export const BuildingIcon = (p: P) => (
+  <svg {...S(p)}>
+    <rect x="4" y="3" width="16" height="18" rx="2" />
+    <path d="M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01M9 21v-4h6v4" />
+  </svg>
+);
+export const ChevronRightIcon = (p: P) => (
+  <svg {...S(p)}>
+    <path d="M9 6l6 6-6 6" />
+  </svg>
+);
+export const UserIcon = (p: P) => (
+  <svg {...S(p)}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </svg>
+);
 
 /**
  * Node-shape glyphs for the workflow builder, keyed by a semantic name.
