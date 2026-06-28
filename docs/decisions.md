@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-06-21 — Build approach: frontend-first, page by page (demo-driven)
+
+**Decision**: Build the UI **page by page** in real Next.js (Command × Bento design system) with realistic **mock data** first — so there is something concrete to show stakeholders and to learn each page — then build the backend per page, then **connect** (swap mock data for the live API). Docker / live infra is deferred until the connect step (UI + mock data needs only Node).
+
+**Rationale**: Tangible, demonstrable progress for stakeholders; validates look & flow before backend cost; lighter setup now; mock data is shaped like the real API so connecting is a small swap, not a rewrite. The user is also learning, and a visible UI is the easiest entry point.
+
+**Status**: Toolchain installed (Node 20.20.2 + pnpm 9.12.3); web runs at http://localhost:3000. **Dashboard** page built (mock data). Next pages: Workflow Builder / Field Library / Master Data / Events & Trace, then backend connect.
+
+**Decided by**: Platform Super Admin.
+
+---
+
 ## 2026-06-21 — Codebase scaffolding: pnpm + Turborepo monorepo, Drizzle ORM, Zod field-type system
 
 **Decision**: Began the real build with the foundation + first vertical slice. Structure:

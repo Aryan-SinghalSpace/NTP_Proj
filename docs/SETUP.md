@@ -1,6 +1,8 @@
 # Local Development Setup
 
-> Status: **scaffold v0.** First vertical slice — tenant + Field Library meta-model behind Postgres RLS, an API that serves it, and a Next.js page that reads it. Written before Node/Docker were installed on the dev machine; once they're in, the steps below bring it up.
+> **Status (2026-06-21):** Node 20.20.2 + pnpm 9.12.3 are **installed**; `pnpm install` is done; `field-types` builds + tests pass; both apps typecheck; the **web app runs** at http://localhost:3000 (no Docker needed yet). Build approach is **frontend-first** — UI pages with mock data first, backend + Docker later. The infra/DB steps (sections 2–3) are only needed when connecting a page to live data.
+>
+> _Original scaffold note: first vertical slice — tenant + Field Library meta-model behind Postgres RLS, an API that serves it, and a Next.js page that reads it._
 
 ## Prerequisites
 
