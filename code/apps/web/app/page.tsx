@@ -19,7 +19,8 @@ import {
   type Kpi,
   type Tone,
   type EventTone,
-} from '../lib/mock/dashboard';
+} from '../data_mock/dashboard';
+import Link from 'next/link';
 
 const toneColor: Record<Tone, string> = {
   primary: 'var(--primary)',
@@ -176,9 +177,9 @@ export default function DashboardPage() {
           <div className="overflow-hidden rounded-3xl border border-border bg-surface">
             <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
               <h3 className="text-[15px] font-bold">Recent events</h3>
-              <a className="ml-auto text-[12.5px] font-semibold text-primary" href="#">
+              <Link className="ml-auto text-[12.5px] font-semibold text-primary" href="/events">
                 Trace explorer →
-              </a>
+              </Link>
             </div>
             <table className="w-full text-[13px]">
               <thead>

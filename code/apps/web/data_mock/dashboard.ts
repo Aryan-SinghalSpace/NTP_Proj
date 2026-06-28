@@ -2,6 +2,9 @@
  * Mock data for the Dashboard. Shaped the way the real API will return it, so
  * "connecting" later is a one-file swap (see lib/api.ts). Frontend-first: this
  * lets the page look fully alive with no backend running.
+ *
+ * NOTE: everything under `data_mock/` is temporary demo data. Delete this whole
+ * folder once each page is wired to the live API.
  */
 
 export type Tone = 'primary' | 'teal' | 'amber' | 'rose' | 'sky';
