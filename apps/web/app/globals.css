@@ -9,16 +9,41 @@
   --bg: #f6f5f2;
   --surface: #ffffff;
   --surface-2: #f7f6f3;
+  --surface-hover: #f1efea;
   --border: #ecebe6;
+  --border-strong: #dddbd3;
   --text: #1b1922;
   --muted: #6e6a78;
   --subtle: #a09bab;
+
   --primary: #5b5bf0;
+  --primary-hover: #4a4ae2;
   --primary-soft: #ecebfe;
+  --primary-soft-fg: #4338ca;
   --primary-fg: #ffffff;
+
   --teal: #10b6a0;
+  --teal-soft: #d9f3ee;
   --amber: #f0a020;
+  --amber-soft: #fcefd6;
+  --amber-fg: #a96a0c;
   --rose: #f0566f;
+  --rose-soft: #fde4e8;
+  --rose-fg: #b8344a;
+  --sky: #3aa0f5;
+  --sky-soft: #e6eefe;
+  --sky-fg: #2a5fd0;
+
+  --success: #1f9d57;
+  --success-soft: #dcf3e6;
+  --success-fg: #187a45;
+  --warning-soft: #fcefd6;
+  --warning-fg: #a96a0c;
+  --danger: #e0485f;
+  --danger-soft: #fbe2e6;
+  --danger-fg: #b8344a;
+  --info-soft: #e6eefe;
+  --info-fg: #2a5fd0;
 }
 
 html,
@@ -32,4 +57,29 @@ body {
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Gradient helpers for bento hero tiles (kept as plain classes so they
+   never get purged and read cleanly in JSX). */
+.brand-grad {
+  background: linear-gradient(135deg, var(--primary), var(--teal));
+}
+.grad-indigo {
+  background: linear-gradient(135deg, #6a6af4, #8b6df0);
+  color: #fff;
+}
+.grad-rose {
+  background: linear-gradient(140deg, #ff6f86, #f0566f);
+  color: #fff;
+}
+.grad-teal {
+  background: linear-gradient(135deg, #19c6b0, #10a48f);
+  color: #fff;
+}
+.grad-amber {
+  background: linear-gradient(135deg, #ffc24d, #f0a020);
+  color: #fff;
+}
+.avatar-grad {
+  background: linear-gradient(135deg, #8b6df0, var(--rose));
 }
