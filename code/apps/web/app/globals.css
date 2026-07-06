@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* Fonts are loaded via next/font in app/layout.tsx (faster, no layout shift):
+   --font-display (Space Grotesk), --font-inter (Inter), --font-mono (JetBrains Mono). */
 
 @tailwind base;
 @tailwind components;
@@ -59,8 +60,16 @@
   --radius-pill: 999px;
   --shadow-sm: 0 1px 2px rgba(40, 30, 55, 0.05), 0 2px 6px rgba(40, 30, 55, 0.04);
   --shadow: 0 8px 24px -10px rgba(40, 30, 55, 0.16);
+  --shadow-lg: 0 24px 60px -20px rgba(40, 30, 55, 0.24), 0 8px 24px -12px rgba(40, 30, 55, 0.12);
+  --shadow-glow: 0 20px 50px -18px rgba(91, 91, 240, 0.5);
   --ring: 0 0 0 3px rgba(91, 91, 240, 0.2);
   --grid-dot: #e7e4dd;
+}
+
+/* Dormant dark theme — fill these in when we flip on dark mode (darkMode: 'class').
+   Kept as a placeholder so the switch is a token edit, not a page-by-page retrofit. */
+.dark {
+  /* TODO: dark palette overrides go here */
 }
 
 html,
@@ -99,6 +108,55 @@ body {
 }
 .avatar-grad {
   background: linear-gradient(135deg, #8b6df0, var(--rose));
+}
+
+/* ── Polish helpers (landing + marketing surfaces) ───────────────────────── */
+
+/* Animated gradient text for hero headlines. */
+.grad-text {
+  background: linear-gradient(100deg, var(--primary) 0%, var(--violet) 40%, var(--teal) 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+/* Frosted-glass surface for floating cards over the hero backdrop. */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(150%) blur(14px);
+  -webkit-backdrop-filter: saturate(150%) blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Soft multi-blob mesh backdrop — apply to a full-bleed positioned layer. */
+.mesh {
+  background:
+    radial-gradient(38% 42% at 18% 12%, rgba(107, 106, 244, 0.18), transparent 60%),
+    radial-gradient(36% 40% at 84% 8%, rgba(16, 182, 160, 0.16), transparent 60%),
+    radial-gradient(44% 46% at 70% 88%, rgba(139, 109, 240, 0.14), transparent 62%);
+}
+
+/* Faint dotted grid, same token as the builder canvas. */
+.dotgrid {
+  background-image: radial-gradient(var(--grid-dot) 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+}
+
+/* Hairline top border used to separate marketing bands. */
+.hairline {
+  border-top: 1px solid var(--border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grad-text,
+  .animate-float,
+  .animate-shimmer,
+  .animate-pulse-ring {
+    animation: none !important;
+  }
 }
 
 /* ── Workflow builder (mirrors mockups/final/assets/system.css) ───────────── */
