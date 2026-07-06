@@ -8,7 +8,11 @@
 > `code/apps/web/data_mock/` (temporary — deleted once each page is wired to the live
 > API). Design system = **Command × Bento**. Product is branded **Strings** in the UI.
 >
-> _Last updated: 2026-06-28._
+> **🎨 UI revamp in progress** (Phases 1–2 done: design foundation, landing, auth). For the
+> review/polish guide and per-page checklists, see **[UI-REVAMP-RUNBOOK.md](UI-REVAMP-RUNBOOK.md)**.
+> Revamped pages are tagged **🎨** below; the rest still use the pre-revamp styling.
+>
+> _Last updated: 2026-07-06._
 
 ---
 
@@ -16,7 +20,8 @@
 
 | Piece | Where | Purpose |
 |-------|-------|---------|
-| **Welcome** | `app/page.tsx` → `/` | Temporary landing — "Welcome to Strings" + one button into the launcher. |
+| **Landing** 🎨 | `app/page.tsx` → `/` | **Product marketing page** (revamped): hero + feature bento + how-it-works + standards + CTA. Dev launcher link in the footer. Sections in `components/landing/`. |
+| **Design foundation** 🎨 | `components/ui/*`, `lib/utils.ts`, `components/Reveal.tsx` | Reusable Bento-themed component kit (Button/Card/Badge/Input/Field/PasswordInput) + framer-motion. See UI-REVAMP-RUNBOOK. |
 | **Launcher** | `app/launcher/page.tsx` → `/launcher` | Visual index of every page (this runbook, in-app). One click from Welcome and from the top-nav logo / apps button. **Scaffolding only.** |
 | **Page registry** | `data_mock/launcher.ts` | Single source of truth for the launcher + this runbook (titles, blurbs, routes, status). |
 | **Top-nav chrome** | `components/TopNav.tsx` | Logged-in header. Logo + apps button → launcher; bell → `/notifications`; avatar → `/account`. |
@@ -72,10 +77,10 @@ _Entry points — chrome-free, pre-login (AuthShell)._
 
 | Page | Route | Status | What it represents |
 |------|-------|--------|--------------------|
-| **Login** | `/login` | ✅ | Email/password + SSO (links to dashboard). |
-| **Register** | `/register` | ✅ | New user sign-up → flows into onboarding. |
-| **Tenant Onboarding** | `/onboarding` | ✅ | 4-step wizard: Organisation → Identity scheme → Modules → Review & create. |
-| **Forgot Password** | `/forgot-password` | ✅ | Request a reset link. |
+| **Login** 🎨 | `/login` | ✅ | Revamped: Google/Microsoft SSO, form kit, password show/hide, glass brand panel. |
+| **Register** 🎨 | `/register` | ✅ | Revamped: sign-up on the shared form kit → flows into onboarding. |
+| **Tenant Onboarding** | `/onboarding` | ✅ | 4-step wizard: Organisation → Identity scheme → Modules → Review & create. _(pre-revamp styling)_ |
+| **Forgot Password** 🎨 | `/forgot-password` | ✅ | Revamped: request a reset link. |
 
 ---
 
