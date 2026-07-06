@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import { AuthShell } from '../../components/AuthShell';
-import { LogInIcon, MailIcon, KeyIcon } from '../../components/icons';
+import { SsoButtons } from '../../components/auth/SsoButtons';
+import { Field, Input, Checkbox, OrDivider } from '../../components/ui/input';
+import { PasswordInput } from '../../components/ui/password-input';
+import { buttonVariants } from '../../components/ui/button';
+import { cn } from '../../lib/utils';
+import { MailIcon, KeyIcon, ArrowRightIcon } from '../../components/icons';
 
 export default function LoginPage() {
   return (
@@ -10,68 +15,54 @@ export default function LoginPage() {
       footer={
         <>
           New here?{' '}
-          <Link href="/register" className="font-semibold text-primary">
+          <Link href="/register" className="font-semibold text-primary hover:underline">
             Create an account
-          </Link>{' '}
-          ·{' '}
-          <Link href="/forgot-password" className="text-primary">
-            Forgot password?
           </Link>
         </>
       }
     >
-      <form>
-        {/* SSO */}
-        <Link
-          href="/dashboard"
-          className="btn-bd"
-          style={{ width: '100%', justifyContent: 'center' }}
-        >
-          <LogInIcon />
-          Continue with SSO
-        </Link>
+      <SsoButtons />
+      <OrDivider label="or sign in with email" />
 
-        {/* or divider */}
-        <div className="my-5 flex items-center gap-3 text-[12px] text-subtle">
-          <span className="h-px flex-1 bg-border" />
-          or
-          <span className="h-px flex-1 bg-border" />
-        </div>
+      <form className="space-y-1">
+        <Field label="Email" htmlFor="email">
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@acme.com"
+            leadingIcon={<MailIcon width={16} height={16} />}
+          />
+        </Field>
 
-        <div className="field">
-          <label>Email</label>
-          <input className="input" type="email" placeholder="you@acme.com" />
-        </div>
+        <Field label="Password" htmlFor="password">
+          <PasswordInput
+            id="password"
+            placeholder="••••••••"
+            leadingIcon={<KeyIcon width={16} height={16} />}
+          />
+        </Field>
 
-        <div className="field">
-          <label>Password</label>
-          <input className="input" type="password" placeholder="••••••••" />
-        </div>
-
-        <div className="mb-5 flex items-center justify-between text-[12.5px] text-muted">
-          <label className="inline-flex items-center gap-2 font-medium">
-            <input type="checkbox" className="h-3.5 w-3.5 accent-[var(--primary)]" />
+        <div className="flex items-center justify-between pb-2 pt-1">
+          <Checkbox id="keep" defaultChecked>
             Keep me signed in
-          </label>
-          <Link href="/forgot-password" className="font-semibold text-primary">
-            Forgot?
+          </Checkbox>
+          <Link href="/forgot-password" className="text-[12.5px] font-semibold text-primary hover:underline">
+            Forgot password?
           </Link>
         </div>
 
         <Link
           href="/dashboard"
-          className="btn-bd primary"
-          style={{ width: '100%', justifyContent: 'center' }}
+          className={cn(buttonVariants({ variant: 'gradient', size: 'lg' }), 'w-full')}
         >
-          <KeyIcon />
           Sign in
+          <ArrowRightIcon width={18} height={18} />
         </Link>
-
-        <p className="help mt-4 flex items-center gap-1.5">
-          <MailIcon width={14} height={14} />
-          Single sign-on is configured per tenant.
-        </p>
       </form>
+
+      <p className="mt-5 text-center text-[12px] text-subtle">
+        Single sign-on is configured per tenant.
+      </p>
     </AuthShell>
   );
 }

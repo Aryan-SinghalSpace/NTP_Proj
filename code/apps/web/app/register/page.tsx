@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import { AuthShell } from '../../components/AuthShell';
-import { UserIcon } from '../../components/icons';
+import { SsoButtons } from '../../components/auth/SsoButtons';
+import { Field, Input, Checkbox, OrDivider } from '../../components/ui/input';
+import { PasswordInput } from '../../components/ui/password-input';
+import { buttonVariants } from '../../components/ui/button';
+import { cn } from '../../lib/utils';
+import { MailIcon, BuildingIcon, ArrowRightIcon } from '../../components/icons';
 
 export default function RegisterPage() {
   return (
@@ -10,68 +15,74 @@ export default function RegisterPage() {
       footer={
         <>
           Already have an account?{' '}
-          <Link href="/login" className="font-semibold text-primary">
+          <Link href="/login" className="font-semibold text-primary hover:underline">
             Sign in
           </Link>
         </>
       }
     >
-      <form>
+      <SsoButtons />
+      <OrDivider label="or register with email" />
+
+      <form className="space-y-1">
         <div className="grid grid-cols-2 gap-3">
-          <div className="field">
-            <label>First name</label>
-            <input className="input" placeholder="Asha" />
-          </div>
-          <div className="field">
-            <label>Last name</label>
-            <input className="input" placeholder="Rao" />
-          </div>
+          <Field label="First name" htmlFor="first">
+            <Input id="first" placeholder="Asha" />
+          </Field>
+          <Field label="Last name" htmlFor="last">
+            <Input id="last" placeholder="Rao" />
+          </Field>
         </div>
 
-        <div className="field">
-          <label>Work email</label>
-          <input className="input" type="email" placeholder="you@acme.com" />
-        </div>
+        <Field label="Work email" htmlFor="email">
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@acme.com"
+            leadingIcon={<MailIcon width={16} height={16} />}
+          />
+        </Field>
 
-        <div className="field">
-          <label>Organisation</label>
-          <input className="input" placeholder="Acme Foods Pvt Ltd" />
-        </div>
+        <Field label="Organisation" htmlFor="org">
+          <Input
+            id="org"
+            placeholder="Acme Foods Pvt Ltd"
+            leadingIcon={<BuildingIcon width={16} height={16} />}
+          />
+        </Field>
 
-        <div className="field">
-          <label>Password</label>
-          <input className="input" type="password" placeholder="At least 12 characters" />
-          <p className="help">Use 12+ characters with a mix of letters, numbers and symbols.</p>
-        </div>
+        <Field
+          label="Password"
+          htmlFor="password"
+          hint="Use 12+ characters with a mix of letters, numbers and symbols."
+        >
+          <PasswordInput id="password" placeholder="At least 12 characters" />
+        </Field>
 
-        <label className="mb-5 flex items-start gap-2 text-[12.5px] text-muted">
-          <input type="checkbox" className="mt-0.5 h-3.5 w-3.5 accent-[var(--primary)]" />
-          <span>
-            I agree to the{' '}
-            <Link href="/" className="font-semibold text-primary">
-              Terms
-            </Link>{' '}
-            and{' '}
-            <Link href="/" className="font-semibold text-primary">
-              Privacy Policy
-            </Link>
-            .
-          </span>
-        </label>
+        <Checkbox id="terms" className="mb-5">
+          I agree to the{' '}
+          <Link href="/" className="font-semibold text-primary hover:underline">
+            Terms
+          </Link>{' '}
+          and{' '}
+          <Link href="/" className="font-semibold text-primary hover:underline">
+            Privacy Policy
+          </Link>
+          .
+        </Checkbox>
 
         <Link
           href="/onboarding"
-          className="btn-bd primary"
-          style={{ width: '100%', justifyContent: 'center' }}
+          className={cn(buttonVariants({ variant: 'gradient', size: 'lg' }), 'w-full')}
         >
-          <UserIcon />
           Create account
+          <ArrowRightIcon width={18} height={18} />
         </Link>
-
-        <p className="help mt-4">
-          After verifying your email you&apos;ll be guided through tenant onboarding.
-        </p>
       </form>
+
+      <p className="mt-5 text-center text-[12px] text-subtle">
+        After verifying your email you’ll be guided through tenant onboarding.
+      </p>
     </AuthShell>
   );
 }
