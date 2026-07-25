@@ -9,6 +9,25 @@
 
 ---
 
+## 2026-07-25 — Testing pass #2: broader service tests + CI pipeline
+
+- **More integration tests** (real Postgres + RLS, same helper pattern):
+  - `test/logistics.spec.ts` — creating a dispatch appends a **Dispatch** event;
+    receiving a leg appends a **Receive** event; **recall fan-out** derives the
+    impacted dealer (name/units/status) from shipment legs.
+  - `test/workflows.spec.ts` — create → draft v1; save updates the draft in place;
+    **publish** sets the 30-day grace; a save after publish opens a new draft v2;
+    publish v2; publishing with no draft → `TW-GEN-409` (append-only versioning).
+  - `test/fields.spec.ts` — **invariant #4**: deactivating a tenant field hides it
+    from active but keeps it in the historic view + reactivate; a Core/Super field
+    → `TW-FIELD-403-TIER`; duplicate key → `TW-FIELD-409-DUP`.
+  - Added `expectAppCode()` to `test/helpers.ts`.
+  - **Result: 24 API tests pass** (+7 field-types = 31 repo-wide).
+- **CI** — `.github/workflows/ci.yml` on push/PR to main: spins up **postgres:16**,
+  creates the RLS non-superuser app role (`infra/postgres/init/01-app-role.sql`),
+  runs migrations, then field-types + api tests, then api + web typechecks.
+  DATABASE_URL (app role) + MIGRATION_DATABASE_URL (owner) provided via job env.
+
 ## 2026-07-25 — Testing pass #1: Vitest harness + invariant tests (API)
 
 - **Harness**: Vitest added to `apps/api` (aligns with `field-types`). Scripts:

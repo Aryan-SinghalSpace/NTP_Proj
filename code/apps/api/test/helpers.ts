@@ -1,7 +1,21 @@
 import { Client } from 'pg';
 import { randomUUID } from 'node:crypto';
+import { expect } from 'vitest';
 import { env } from '../src/config/env';
 import { tenantStorage, type AppRole } from '../src/db/tenant-context';
+import { AppException } from '../src/common/errors/app-exception';
+
+/** Assert that `fn` rejects with an AppException carrying the given catalog code. */
+export async function expectAppCode(fn: () => Promise<unknown>, code: string): Promise<void> {
+  let err: unknown;
+  try {
+    await fn();
+  } catch (e) {
+    err = e;
+  }
+  expect(err).toBeInstanceOf(AppException);
+  expect((err as AppException).code).toBe(code);
+}
 
 /** Run `fn` inside a tenant context (what the middleware does per request). */
 export function asTenant<T>(tenantId: string | null, fn: () => Promise<T>, role: AppRole = 'tenant'): Promise<T> {
