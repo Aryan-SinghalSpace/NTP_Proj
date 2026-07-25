@@ -18,8 +18,10 @@ import {
   getEvents,
   getAllBatches,
   createEvent,
+  getRecallFanout,
   type ApiEvent,
   type ApiBatch,
+  type ApiRecallDealer,
   type CreateEventPayload,
 } from '../../lib/api';
 import { isQueuedOffline } from '../../lib/api-error';
@@ -508,14 +510,37 @@ function TraceTab({
 /* ── Recall ───────────────────────────────────────────────── */
 
 function RecallTab({ recalls, onFlash }: { recalls: ApiEvent[]; onFlash: (t: string) => void }) {
-  if (recalls.length === 0) {
+  const latest = recalls[0];
+  const [fanout, setFanout] = useState<ApiRecallDealer[] | null>(null);
+
+  useEffect(() => {
+    if (!latest?.subjectId) {
+      setFanout([]);
+      return;
+    }
+    let live = true;
+    setFanout(null);
+    getRecallFanout(latest.subjectId)
+      .then((f) => live && setFanout(f))
+      .catch(() => live && setFanout([]));
+    return () => {
+      live = false;
+    };
+  }, [latest?.subjectId]);
+
+  if (recalls.length === 0 || !latest) {
     return (
       <div className="rounded-3xl border border-border bg-surface p-10 text-center text-[13.5px] text-muted">
         No active recalls. Record a <span className="font-semibold">Recall</span> event to start a fan-out.
       </div>
     );
   }
-  const latest = recalls[0]!;
+
+  const dealers = fanout ?? [];
+  const delivered = dealers.filter((d) => d.status === 'Delivered').length;
+  const pct = dealers.length ? Math.round((delivered / dealers.length) * 100) : 0;
+  const affectedUnits = dealers.reduce((n, d) => n + d.units, 0);
+
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.4fr]">
       {/* recall summary */}
@@ -526,56 +551,83 @@ function RecallTab({ recalls, onFlash }: { recalls: ApiEvent[]; onFlash: (t: str
         </div>
         <div className="mt-3 font-display text-[24px] font-bold">Batch {latest.subjectLabel}</div>
         <div className="text-[13px] opacity-90">
-          {latest.quantity ? `${latest.quantity.toLocaleString()} units affected` : 'quantity —'}
+          {(affectedUnits || latest.quantity || 0).toLocaleString()} units · {dealers.length} dealers impacted
         </div>
         <div className="mt-3 flex items-start gap-2 rounded-xl bg-white/15 p-3 text-[12.5px]">
           <AlertIcon width={16} height={16} />
           <span>{latest.detail ?? 'Recall in progress'}</span>
         </div>
-        <div className="mt-auto pt-4 text-[12px] opacity-90">
-          Dealer fan-out (shipments &amp; dealer acknowledgements) arrives with the dealer/shipment slice.
+        <div className="mt-auto pt-4">
+          <div className="h-2 overflow-hidden rounded-full bg-white/30">
+            <span className="block h-full rounded-full bg-white" style={{ width: `${pct}%` }} />
+          </div>
+          <div className="mt-1.5 flex justify-between text-xs opacity-90">
+            <span>
+              Distribution reached · {delivered}/{dealers.length} delivered
+            </span>
+            <span className="font-bold">{pct}%</span>
+          </div>
         </div>
         <button
-          onClick={() => onFlash('Dealer fan-out needs the shipments slice')}
+          onClick={() => onFlash(`Recall notice sent to ${dealers.length} dealers`)}
           className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-white text-[13.5px] font-semibold text-[var(--rose-fg)]"
         >
-          Notify pending dealers
+          Notify impacted dealers
         </button>
       </div>
 
-      {/* recall events list */}
+      {/* real dealer fan-out (from shipment legs) */}
       <div className="overflow-hidden rounded-3xl border border-border bg-surface">
         <div className="flex items-center gap-2.5 border-b border-border px-5 py-4">
-          <h3 className="text-[15px] font-bold">Recall events</h3>
+          <h3 className="text-[15px] font-bold">Dealer fan-out</h3>
           <span className="ml-auto rounded-full bg-[var(--danger-soft)] px-2.5 py-1 text-[11.5px] font-bold text-[var(--danger-fg)]">
-            {recalls.length} total
+            {dealers.length} impacted
           </span>
         </div>
         <table className="w-full text-[13px]">
           <thead>
             <tr className="border-b border-border text-left text-[11.5px] uppercase tracking-wide text-muted">
-              <th className="px-4 py-2.5 font-semibold">Batch</th>
-              <th className="px-4 py-2.5 font-semibold">Reason</th>
+              <th className="px-4 py-2.5 font-semibold">Dealer</th>
+              <th className="px-4 py-2.5 font-semibold">City</th>
               <th className="px-4 py-2.5 font-semibold">Units</th>
-              <th className="px-4 py-2.5 font-semibold">When</th>
+              <th className="px-4 py-2.5 font-semibold">Status</th>
             </tr>
           </thead>
           <tbody>
-            {recalls.map((r) => (
-              <tr key={r.id} className="border-b border-border last:border-0">
-                <td className="px-4 py-3 font-mono font-semibold">{r.subjectLabel ?? '—'}</td>
-                <td className="px-4 py-3 text-muted">{r.detail ?? '—'}</td>
-                <td className="px-4 py-3 text-muted">{r.quantity?.toLocaleString() ?? '—'}</td>
-                <td className="px-4 py-3 text-muted">
-                  {fmtDate(r.occurredAt)} {fmtTime(r.occurredAt)}
+            {fanout === null && (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-muted">
+                  Resolving fan-out…
+                </td>
+              </tr>
+            )}
+            {dealers.map((d) => (
+              <tr key={d.dealer} className="border-b border-border last:border-0">
+                <td className="px-4 py-3 font-semibold">{d.dealer}</td>
+                <td className="px-4 py-3 text-muted">{d.city}</td>
+                <td className="px-4 py-3 text-muted">{d.units.toLocaleString()}</td>
+                <td className="px-4 py-3">
+                  <span
+                    className="rounded-full px-2.5 py-1 text-[11px] font-bold"
+                    style={toneStyle(d.status === 'Delivered' ? 'danger' : 'warning')}
+                  >
+                    {d.status === 'Delivered' ? 'Received — quarantine' : d.status}
+                  </span>
                 </td>
               </tr>
             ))}
+            {fanout !== null && dealers.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-muted">
+                  No dispatch legs found for this batch — nothing to fan out.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
         <div className="flex items-center gap-2 border-t border-border px-5 py-3 text-[12px] text-subtle">
           <ClockIcon width={14} height={14} />
-          Backward trace resolves each recalled batch to its origin; forward trace to its distribution.
+          Fan-out is derived live from the shipment legs that delivered this batch (recall spine → logistics).
         </div>
       </div>
     </div>

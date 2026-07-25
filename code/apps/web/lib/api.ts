@@ -487,3 +487,64 @@ export function toggleNotificationRule(id: string, enabled: boolean): Promise<Ap
 export function getNotificationDeliveries(): Promise<ApiNotificationDelivery[]> {
   return getJson<ApiNotificationDelivery[]>('/api/notification-deliveries');
 }
+
+/* ── Logistics: dealers, shipments, legs, recall fan-out ──────────────────── */
+
+export interface ApiDealer {
+  id: string;
+  name: string;
+  city: string;
+  identifier: string;
+  status: 'active' | 'inactive';
+}
+export interface ApiShipmentLeg {
+  id: string;
+  shipmentId: string;
+  dealerId: string;
+  dealerName: string | null;
+  city: string | null;
+  units: number;
+  receivedUnits: number;
+  status: 'loading' | 'in_transit' | 'delivered';
+}
+export interface ApiShipment {
+  id: string;
+  code: string;
+  batchId: string | null;
+  batchLabel: string;
+  productLabel: string;
+  totalUnits: number;
+  createdAt: string;
+  legs: ApiShipmentLeg[];
+}
+export interface ApiRecallDealer {
+  dealer: string;
+  city: string;
+  units: number;
+  status: string;
+}
+
+export function getDealers(): Promise<ApiDealer[]> {
+  return getJson<ApiDealer[]>('/api/dealers');
+}
+export function createDealer(payload: { name: string; city?: string; identifier?: string }): Promise<ApiDealer> {
+  return postJson<ApiDealer>('/api/dealers', payload);
+}
+export function getShipments(): Promise<ApiShipment[]> {
+  return getJson<ApiShipment[]>('/api/shipments');
+}
+export function createShipment(payload: {
+  batchId: string;
+  legs: { dealerId: string; units: number }[];
+}): Promise<ApiShipment> {
+  return postJson<ApiShipment>('/api/shipments', payload);
+}
+export function updateShipmentLeg(
+  id: string,
+  patch: { status?: 'loading' | 'in_transit' | 'delivered'; receivedUnits?: number },
+): Promise<ApiShipmentLeg> {
+  return patchJson<ApiShipmentLeg>(`/api/shipment-legs/${id}`, patch);
+}
+export function getRecallFanout(batchId: string): Promise<ApiRecallDealer[]> {
+  return getJson<ApiRecallDealer[]>(`/api/recall-fanout?batchId=${encodeURIComponent(batchId)}`);
+}

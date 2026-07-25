@@ -320,3 +320,54 @@ export const schema = {
   notificationRule,
   notificationDelivery,
 };
+
+/** External receiving party (dealer/distributor). Tenant-scoped. */
+export const dealer = pgTable(
+  'dealer',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    city: text('city').notNull().default(''),
+    identifier: text('identifier').notNull().default(''),
+    status: text('status').notNull().default('active'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ tenantIdx: index('dealer_tenant_idx').on(t.tenantId) }),
+);
+
+/** A dispatch of a batch, split into per-dealer legs. */
+export const shipment = pgTable(
+  'shipment',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    code: text('code').notNull(),
+    batchId: uuid('batch_id'),
+    batchLabel: text('batch_label').notNull().default(''),
+    productLabel: text('product_label').notNull().default(''),
+    totalUnits: integer('total_units').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ tenantIdx: index('shipment_tenant_idx').on(t.tenantId, t.createdAt), batchIdx: index('shipment_batch_idx').on(t.batchId) }),
+);
+
+/** One dealer's portion of a shipment (the receive surface + recall fan-out). */
+export const shipmentLeg = pgTable(
+  'shipment_leg',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    shipmentId: uuid('shipment_id').notNull(),
+    dealerId: uuid('dealer_id').notNull(),
+    units: integer('units').notNull().default(0),
+    receivedUnits: integer('received_units').notNull().default(0),
+    status: text('status').notNull().default('loading'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ shipmentIdx: index('shipment_leg_shipment_idx').on(t.shipmentId), dealerIdx: index('shipment_leg_dealer_idx').on(t.dealerId) }),
+);
+
+Object.assign(schema, { dealer, shipment, shipmentLeg });

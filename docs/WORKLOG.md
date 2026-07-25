@@ -9,6 +9,26 @@
 
 ---
 
+## 2026-07-25 — Dealer / Shipment slice → dispatch, receive & REAL recall fan-out
+
+- **API**: `0009_dealers_shipments.sql` — `dealer`, `shipment`, `shipment_leg`
+  tables (RLS + grants + seeds incl. a shipment for the recalled batch B-240517 so
+  fan-out is real). `LogisticsModule` (imports EventsModule; EventsService now
+  exported): `GET/POST /api/dealers`, `GET /api/shipments` (with legs + dealer
+  joined), `POST /api/shipments` (multi-dealer dispatch — **appends a Dispatch
+  event** + audit), `PATCH /api/shipment-legs/:id` (receive — marking delivered
+  **appends a Receive event**), `GET /api/recall-fanout?batchId=` (dealers impacted,
+  derived live from shipment legs).
+- **Web**: `/dispatch` live — Dispatch tab (shipments + legs), Receive tab (open
+  legs → Receive → delivered), **New dispatch** modal (pick batch + add dealer
+  legs). `/events` **Recall tab now shows the real dealer fan-out** (fetched from
+  `/api/recall-fanout` for the recalled batch) with a delivered-progress bar.
+  `lib/api.ts` +dealer/shipment/leg/recall-fanout fetchers.
+- **Verified**: 5 dealers, 3 seeded shipments w/ legs; recall fan-out for B-240517
+  → 3 impacted dealers (real); create dispatch → Dispatch event (15→16); receive
+  leg → Receive event (16→17); `/dispatch` + `/events` HTTP 200; typecheck clean.
+- **Note:** `/scanning` (mobile PWA) still mock — it can reuse the receive path.
+
 ## 2026-07-25 — Notifications wired (rules + delivery log)
 
 - **API**: `0008_notifications.sql` — `notification_rule` (name, trigger, channels

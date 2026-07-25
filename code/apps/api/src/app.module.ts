@@ -13,6 +13,7 @@ import { TenantModule } from './tenant/tenant.module';
 import { IdentitySchemesModule } from './identity-schemes/identity-schemes.module';
 import { ApprovalsModule } from './approvals/approvals.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { LogisticsModule } from './logistics/logistics.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     IdentitySchemesModule,
     ApprovalsModule,
     NotificationsModule,
+    LogisticsModule,
   ],
 })
 export class AppModule implements NestModule {
