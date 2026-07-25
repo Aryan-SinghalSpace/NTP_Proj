@@ -9,6 +9,29 @@
 
 ---
 
+## 2026-07-25 — Testing pass #3: web tests + HTTP e2e + more service coverage
+
+- **More API service coverage** (`test/config-services.spec.ts`, +5 → 29 API
+  integration/unit tests): master-data live counts (brand-owner products+distinct
+  brands; manufacturing-unit product count by attributes.mfgUnit), notification
+  rule create+toggle, approval decide (status+decided_at), custom identity scheme
+  create+disable.
+- **Web tests** (new: Vitest + jsdom + @testing-library/react in `apps/web`;
+  `vitest.config.ts` + `test/setup.ts`): **15 tests** — `lib/api-error.spec.ts`
+  (envelope parse, network/queued guards), `lib/outbox.spec.ts` (enqueue/flush;
+  network-fail keeps, 4xx drops, 409=idempotent-synced, subscribe), `lib/api.spec.ts`
+  (getProducts 200 + typed ApiError on non-OK; **offline write → QueuedOfflineError
+  + saved to outbox**), `components/ui/button.spec.tsx` (render/props/variants).
+- **HTTP e2e** (`test/app.e2e.spec.ts`, **8 tests**): boots the FULL Nest app via
+  `@nestjs/testing` + supertest. Needs SWC for decorator metadata → separate
+  `vitest.config.e2e.ts` (`unplugin-swc`) + `test:e2e` script; default config now
+  excludes `*.e2e.spec.ts`. Verifies over real HTTP: health; product scoping by
+  x-tenant-id + `x-request-id` header; no-header/other-tenant → empty (RLS); 404 →
+  friendly stack-free envelope; validation → TW-GEN-400 + details; malformed uuid →
+  400; admin without platform role → 403.
+- **CI** updated to run api e2e + web tests too.
+- **Totals: 59 tests green** — API 29 + e2e 8 + web 15 + field-types 7.
+
 ## 2026-07-25 — Testing pass #2: broader service tests + CI pipeline
 
 - **More integration tests** (real Postgres + RLS, same helper pattern):

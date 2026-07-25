@@ -1,11 +1,13 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, configDefaults } from 'vitest/config';
 
 export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.spec.ts', 'test/**/*.spec.ts'],
-    // Integration tests share the local Postgres — don't run files in parallel.
-    fileParallelism: false,
+    // e2e specs bootstrap the whole Nest app and need the SWC transform
+    // (decorator metadata) — they run under vitest.config.e2e.ts instead.
+    exclude: [...configDefaults.exclude, '**/*.e2e.spec.ts'],
+    fileParallelism: false, // integration tests share the local Postgres
     testTimeout: 20000,
     hookTimeout: 30000,
   },

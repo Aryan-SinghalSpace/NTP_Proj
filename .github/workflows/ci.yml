@@ -71,6 +71,12 @@ jobs:
       - name: Test — api (unit + RLS/service integration)
         run: pnpm --filter @tracewell/api test
 
+      - name: Test — api e2e (full Nest app via supertest)
+        run: pnpm --filter @tracewell/api test:e2e
+
+      - name: Test — web (lib + component)
+        run: pnpm --filter @tracewell/web test
+
       - name: Typecheck — api
         run: pnpm --filter @tracewell/api typecheck
 
