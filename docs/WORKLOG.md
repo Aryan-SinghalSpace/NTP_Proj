@@ -9,6 +9,19 @@
 
 ---
 
+## 2026-07-25 — Scanning + Reports wired (no new backend)
+
+- **`/scanning`**: mobile-PWA surface now records **real events** via the same
+  offline outbox — pick a mode (Tag→Commission / Dispatch / Receive), pick a
+  batch, Scan → `createEvent` (queues offline if disconnected). Recent-scans feed
+  = live events + outbox-queued items; sync status + "Sync now" driven by the
+  outbox (`subscribe`/`flushOutbox`). This is the PRD "offline mode with sync".
+- **`/reports`**: 6 report cards computed **live** over products/batches/events/
+  dealers/shipments (event volume, trace coverage = batches-with-events, recall
+  events, near-expiry FEFO, dealer network, product catalogue) with a 7-day event
+  sparkline. Deep time-series + scheduled exports deferred to the analytics store.
+- **Verified**: both HTTP 200; typecheck clean.
+
 ## 2026-07-25 — Dealer / Shipment slice → dispatch, receive & REAL recall fan-out
 
 - **API**: `0009_dealers_shipments.sql` — `dealer`, `shipment`, `shipment_leg`
