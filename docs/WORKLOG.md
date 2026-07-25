@@ -113,15 +113,26 @@ the real NestJS API + Postgres (RLS), then add tests once the connections exist.
     client-side calls (GET allow-origin ok; POST preflight 204 allows x-tenant-id),
     which also covers the master-data client writes.
 
+### Dashboard — DONE, live (no new backend; reuses existing endpoints)
+- **Web only**: `/dashboard` rewritten as a live client page (fetches products +
+  batches + events on mount). All figures live: KPIs (Active GTINs = committed
+  products, Events logged + distinct types, QC holds, Recall events), an
+  **events-by-type** hero bar chart, latest **Recall** card (→ trace), **real FEFO
+  advisories** (soonest-expiring active batches, product name joined client-side),
+  recent-events feed, and batch/FEFO mini-tiles. Loading + API-down states.
+  - Event-volume-over-time and dealer fan-out deferred to the shipments slice.
+  - Verified: `/dashboard` HTTP 200 with all sections; typecheck clean.
+
 ### Full status snapshot (2026-07-25)
-LIVE pages: `/master-data` (products+units+brand-owners+batches; create/commit/
-add-batch), `/events` (stream+trace+recall; record-event), `/fields` (old design).
-Live API: health, fields, products(+:id,+POST,+commit), manufacturing-units,
-brand-owners, batches(+POST), events(+POST). Everything else = mock UI.
+LIVE pages: `/dashboard` (KPIs/events-by-type/recall/recent/FEFO), `/master-data`
+(products+units+brand-owners+batches; create/commit/add-batch), `/events`
+(stream+trace+recall; record-event), `/fields` (old design). Live API: health,
+fields, products(+:id,+POST,+commit), manufacturing-units, brand-owners,
+batches(+POST), events(+POST). Everything else = mock UI.
 
 ### Next up (connect order)
 - **Users/Roles** (tenant-scoped) — groundwork for real auth.
-- **Dashboard** partial-live (product/GTIN/batch/event KPIs all exist now).
 - Rebuild `/fields` on the new design (+ create/deactivate-field endpoints).
-- Dealer/shipment slice → real recall fan-out + multi-dealer dispatch.
+- Dealer/shipment slice → real recall fan-out + multi-dealer dispatch + scanning.
+- Labels, workflows, notifications, approvals, audit, admin/*, identity-schemes.
 - After connections: tests per component; OIDC to replace `x-tenant-id` stand-in.
