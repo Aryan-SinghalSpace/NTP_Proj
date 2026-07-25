@@ -22,6 +22,7 @@ import {
   type ApiBatch,
   type CreateEventPayload,
 } from '../../lib/api';
+import { isQueuedOffline } from '../../lib/api-error';
 
 /* ── event-type display mapping ───────────────────────────── */
 
@@ -621,6 +622,11 @@ function RecordEventModal({
       await createEvent(payload);
       onCreated(eventType);
     } catch (e) {
+      if (isQueuedOffline(e)) {
+        onError(e.message);
+        onClose();
+        return;
+      }
       onError(e instanceof Error ? e.message : 'Could not record event');
       setBusy(false);
     }

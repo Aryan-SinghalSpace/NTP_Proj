@@ -1,8 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { and, desc, eq } from 'drizzle-orm';
 import { TenantDbService } from '../db/tenant-db.service';
 import { currentTenant } from '../db/tenant-context';
 import { event } from '../db/schema';
+import { AppException } from '../common/errors/app-exception';
 import type { CreateEventInput } from './event.dto';
 
 interface ListOpts {
@@ -59,7 +60,7 @@ export class EventsService {
         return rows[0];
       } catch (err) {
         if ((err as { code?: string }).code === '23505') {
-          throw new ConflictException('Duplicate event — this idempotency key was already recorded.');
+          throw new AppException('TW-EVENT-409-IDEMPOTENT', { detail: input.idempotencyKey, cause: err });
         }
         throw err;
       }

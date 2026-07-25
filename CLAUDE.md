@@ -134,6 +134,8 @@ _Resolved 2026-05-31: backend language (TS/NestJS), workflow engine (Temporal), 
 - `docs/security.md` — to be created at security session.
 - `docs/mockups/` — static HTML UI mockups. Chosen direction: **Command × Bento** (`docs/mockups/final/`); 5 concept explorations in `docs/mockups/concepts/`.
 - `docs/SETUP.md` — how to run the codebase locally (install → infra → migrate → run).
+- `docs/WORKLOG.md` — append-only running build log (what was built each session; resumable without memory).
+- `docs/error-handling.md` — two-layer error model, the error-code catalog, logging strategy, and the offline outbox fallback.
 
 ## Repo layout (reorganised 2026-06-21)
 

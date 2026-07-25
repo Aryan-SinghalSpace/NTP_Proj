@@ -35,6 +35,7 @@ import {
   type ApiBatch,
   type CreateProductPayload,
 } from '../../lib/api';
+import { isQueuedOffline } from '../../lib/api-error';
 
 const toneColor: Record<Tone, string> = {
   primary: 'var(--primary)',
@@ -315,6 +316,11 @@ function CreateProductModal({
       await createProduct({ ...form, attributes: mrp.trim() ? { mrp: mrp.trim() } : undefined });
       onCreated(form.name.trim());
     } catch (e) {
+      if (isQueuedOffline(e)) {
+        onError(e.message); // friendly "saved offline — will sync"
+        onClose();
+        return;
+      }
       onError(e instanceof Error ? e.message : 'Could not create product');
       setBusy(false);
     }
@@ -754,6 +760,11 @@ function ProductDrawer({
       const res = await commitProduct(product.id, value);
       onCommitted(product.name, res.gtin ?? value);
     } catch (e) {
+      if (isQueuedOffline(e)) {
+        onFlash(e.message);
+        onClose();
+        return;
+      }
       onFlash(e instanceof Error ? e.message : 'Commit failed');
       setCommitting(false);
     }
@@ -1005,6 +1016,11 @@ function NewBatchForm({
       });
       onCreated(bn);
     } catch (e) {
+      if (isQueuedOffline(e)) {
+        onError(e.message);
+        onCancel();
+        return;
+      }
       onError(e instanceof Error ? e.message : 'Could not create batch');
       setBusy(false);
     }

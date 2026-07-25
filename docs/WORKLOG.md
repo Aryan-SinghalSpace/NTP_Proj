@@ -9,6 +9,34 @@
 
 ---
 
+## 2026-07-25 — Error handling, logging & offline fallback (cross-cutting)
+
+User requirement: robust error handling with (1) friendly customer-facing errors,
+(2) always-on structured logging, (3) a robust fallback so writes are never lost if
+the API can't be reached — plus a document describing every error code. See the
+full spec in **`docs/error-handling.md`** and the standard in memory.
+
+- **API two-layer errors**: `common/errors/error-catalog.ts` (coded catalog
+  TW-<AREA>-<n> → status/friendly message/internal note), `AppException`,
+  `AllExceptionsFilter` (builds the `{ error: { code, message, requestId,
+  timestamp, details? } }` envelope + logs internal detail with full stack).
+  Services (products/batches/events) now throw coded `AppException`s.
+- **Structured logging**: `common/logger.ts` (one JSON line per event),
+  `LoggingInterceptor` (`request.completed`), filter (`error.handled`),
+  `server.started`. `requestId` set in `tenant.middleware.ts`, echoed as the
+  `x-request-id` header, and carried in the async context → links UI error ↔ log.
+- **Web**: `lib/api-error.ts` (`ApiError`/`QueuedOfflineError` + envelope parse);
+  `lib/api.ts` refactored so reads throw `ApiError` (pages show the friendly
+  message) and writes fall back to the **offline outbox** (`lib/outbox.ts`,
+  localStorage) on network failure; `components/OutboxWatcher.tsx` (mounted in
+  layout) auto-retries on online + every 15s and shows a "pending sync" pill;
+  `app/error.tsx` friendly global boundary. Modals treat queued-offline as accepted.
+- **Verified**: friendly envelopes for 404/400-GTIN/validation (with details) +
+  `x-request-id` header; structured `request.completed`/`error.handled` logs with
+  matching requestId; all 4 live pages still HTTP 200; web typecheck clean.
+  Offline outbox = manual browser test (DevTools offline) per the doc.
+- Commit: (this change). Memory: [[error-handling-standard]] added.
+
 ## 2026-07-25 — Phase C "connect" begins: pages wired to the live backend + DB
 
 Goal for the phase: stop running the UI on mock data and connect page after page to

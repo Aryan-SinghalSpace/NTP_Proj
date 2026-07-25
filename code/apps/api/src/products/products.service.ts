@@ -1,14 +1,10 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { desc, eq, sql } from 'drizzle-orm';
 import { isValidGtin } from '@tracewell/field-types';
 import { TenantDbService } from '../db/tenant-db.service';
 import { currentTenant } from '../db/tenant-context';
 import { product } from '../db/schema';
+import { AppException } from '../common/errors/app-exception';
 import type { CreateProductInput } from './product.dto';
 
 @Injectable()
@@ -39,7 +35,7 @@ export class ProductsService {
       tx.select().from(product).where(eq(product.id, id)).limit(1),
     );
     const row = rows[0];
-    if (!row) throw new NotFoundException(`product ${id} not found`);
+    if (!row) throw new AppException('TW-PROD-404', { detail: `id ${id}` });
     return row;
   }
 
@@ -80,14 +76,14 @@ export class ProductsService {
    */
   async commit(id: string, gtin: string) {
     if (!isValidGtin(gtin)) {
-      throw new BadRequestException('Invalid GTIN — GS1 check digit failed (expects 8/12/13/14 digits).');
+      throw new AppException('TW-PROD-400-GTIN', { detail: `gtin ${gtin}` });
     }
     return this.db.run(async (tx) => {
       const existing = await tx.select().from(product).where(eq(product.id, id)).limit(1);
       const p = existing[0];
-      if (!p) throw new NotFoundException(`product ${id} not found`);
+      if (!p) throw new AppException('TW-PROD-404', { detail: `id ${id}` });
       if (p.status === 'committed') {
-        throw new ConflictException('Product is already committed — its identity is locked (invariant #7).');
+        throw new AppException('TW-PROD-409-COMMITTED', { detail: `id ${id}` });
       }
       try {
         const rows = await tx
@@ -99,7 +95,7 @@ export class ProductsService {
       } catch (err) {
         // 23505 = unique_violation on the (tenant_id, gtin) partial index.
         if ((err as { code?: string }).code === '23505') {
-          throw new ConflictException('That GTIN is already committed to another product in this tenant.');
+          throw new AppException('TW-PROD-409-GTIN-TAKEN', { detail: `gtin ${gtin}`, cause: err });
         }
         throw err;
       }

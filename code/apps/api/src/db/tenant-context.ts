@@ -5,6 +5,8 @@ export type AppRole = 'tenant' | 'platform';
 export interface TenantStore {
   tenantId: string | null;
   role: AppRole;
+  /** Correlation id for this request — links the UI error to its server log. */
+  requestId: string;
 }
 
 /**
@@ -15,5 +17,5 @@ export interface TenantStore {
 export const tenantStorage = new AsyncLocalStorage<TenantStore>();
 
 export function currentTenant(): TenantStore {
-  return tenantStorage.getStore() ?? { tenantId: null, role: 'tenant' };
+  return tenantStorage.getStore() ?? { tenantId: null, role: 'tenant', requestId: '-' };
 }

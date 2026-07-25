@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { OutboxWatcher } from '../components/OutboxWatcher';
 
 // Loaded once, self-hosted by Next at build time — no render-blocking CSS import,
 // no layout shift. Each exposes a CSS variable consumed by tailwind.config.ts.
@@ -36,7 +37,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {children}
+        <OutboxWatcher />
+      </body>
     </html>
   );
 }

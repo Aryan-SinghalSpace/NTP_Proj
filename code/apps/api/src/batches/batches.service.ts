@@ -1,8 +1,9 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { asc, eq } from 'drizzle-orm';
 import { TenantDbService } from '../db/tenant-db.service';
 import { currentTenant } from '../db/tenant-context';
 import { batch } from '../db/schema';
+import { AppException } from '../common/errors/app-exception';
 import type { CreateBatchInput } from './batch.dto';
 
 @Injectable()
@@ -44,10 +45,10 @@ export class BatchesService {
       } catch (err) {
         const code = (err as { code?: string }).code;
         if (code === '23505') {
-          throw new ConflictException(`Batch "${input.batchNumber}" already exists for this product.`);
+          throw new AppException('TW-BATCH-409-DUP', { detail: `batch ${input.batchNumber}`, cause: err });
         }
         if (code === '23503') {
-          throw new BadRequestException('Unknown product — cannot create a batch for it.');
+          throw new AppException('TW-BATCH-400-PRODUCT', { detail: `productId ${input.productId}`, cause: err });
         }
         throw err;
       }
