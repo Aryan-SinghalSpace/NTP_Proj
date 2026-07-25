@@ -171,12 +171,72 @@ export function getBatches(productId: string): Promise<ApiBatch[]> {
   return getJson<ApiBatch[]>(`/api/batches?productId=${encodeURIComponent(productId)}`);
 }
 
+/** All batches for the tenant (FEFO-ordered). Used by the events subject picker. */
+export function getAllBatches(): Promise<ApiBatch[]> {
+  return getJson<ApiBatch[]>('/api/batches');
+}
+
 /** Create a batch. Runs the POST /api/batches write path through RLS. */
 export async function createBatch(payload: CreateBatchPayload): Promise<ApiBatch> {
-  const res = await fetch(`${API_BASE}/api/batches`, {
+  return postJson<ApiBatch>('/api/batches', payload);
+}
+
+/* ── Events (append-only trace spine) ─────────────────────────────────────── */
+
+export interface ApiEvent {
+  id: string;
+  eventType: string;
+  occurredAt: string;
+  recordedAt: string;
+  actor: string | null;
+  subjectKind: string;
+  subjectId: string | null;
+  subjectLabel: string | null;
+  location: string | null;
+  quantity: number | null;
+  detail: string | null;
+  createdAt: string;
+}
+
+export interface EventFilters {
+  type?: string;
+  subjectId?: string;
+  limit?: number;
+}
+
+export interface CreateEventPayload {
+  eventType: string;
+  subjectKind?: string;
+  subjectId?: string;
+  subjectLabel?: string;
+  actor?: string;
+  location?: string;
+  quantity?: number;
+  detail?: string;
+  idempotencyKey?: string;
+}
+
+/** The tenant's event stream (newest first). RLS-scoped on the API. */
+export function getEvents(f: EventFilters = {}): Promise<ApiEvent[]> {
+  const qs = new URLSearchParams();
+  if (f.type && f.type !== 'All') qs.set('type', f.type);
+  if (f.subjectId) qs.set('subjectId', f.subjectId);
+  if (f.limit) qs.set('limit', String(f.limit));
+  const suffix = qs.toString() ? `?${qs.toString()}` : '';
+  return getJson<ApiEvent[]>(`/api/events${suffix}`);
+}
+
+/** Append an event (append-only). Runs POST /api/events through RLS. */
+export function createEvent(payload: CreateEventPayload): Promise<ApiEvent> {
+  return postJson<ApiEvent>('/api/events', payload);
+}
+
+/** Shared POST helper that surfaces the API's error message. */
+async function postJson<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-tenant-id': DEMO_TENANT },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
     let msg = `API responded ${res.status}`;
@@ -188,5 +248,5 @@ export async function createBatch(payload: CreateBatchPayload): Promise<ApiBatch
     }
     throw new Error(msg);
   }
-  return (await res.json()) as ApiBatch;
+  return (await res.json()) as T;
 }

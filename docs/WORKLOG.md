@@ -89,15 +89,39 @@ the real NestJS API + Postgres (RLS), then add tests once the connections exist.
   → refetch + `router.refresh()` so the list count updates.
   - Verified: `/master-data` HTTP 200 with Batches column; typecheck clean.
 
+### Events & Trace — DONE, live end-to-end (the trace spine)
+- **API**: `0005_event.sql` — append-only `event` table (data-model §6.2): UUID pk,
+  `event_type` CHECK across the 14 v1 types, occurred/recorded_at, actor,
+  subject_kind/subject_id/subject_label, location, quantity, detail, payload +
+  lineage jsonb, idempotency_key + RLS + grants + partial-unique
+  `(tenant_id, idempotency_key)` + time/subject/type indexes + a seeded timeline
+  (15 events across 5 batches: Commission→Aggregate→Dispatch→QCHold→Recall etc.).
+  Drizzle `event` schema. `src/events/*` — `EventsModule`: `GET /api/events?type=&
+  subjectId=&limit=` (newest first), `POST /api/events` (append; 409 on dup
+  idempotency key, 400 on bad type). (Temporal/workflow-version links + partitioning
+  deferred — this is the v1 event-log.)
+  - Verified: 15 events newest-first; ?type=Recall→1; ?subjectId trace→5-event
+    chain; RLS other-tenant→0; POST append ok, dup-idempotency→409, bad-type→400.
+- **Web**: `/events` rewritten as a live client page (fetches on mount → tz-safe).
+  `lib/api.ts` +`ApiEvent`/`getEvents`/`createEvent`/`getAllBatches` + shared
+  `postJson`. Three tabs live: **Event Stream** (type chips + search, EVENT_META
+  tone/status mapping, formatted time), **Trace Explorer** (pick a subject → real
+  chronological timeline), **Recall** (live Recall events; dealer fan-out flagged
+  as later shipments slice). KPIs from live events. **"Record event" modal** →
+  `POST /api/events` → reload.
+  - Verified: `/events` HTTP 200; typecheck clean. **CORS confirmed** for browser
+    client-side calls (GET allow-origin ok; POST preflight 204 allows x-tenant-id),
+    which also covers the master-data client writes.
+
 ### Full status snapshot (2026-07-25)
-LIVE: `/master-data` (products+units+brand-owners+batches, create/commit/add-batch),
-`/fields` (old design). Live API: health, fields, products(+:id,+POST,+commit),
-manufacturing-units, brand-owners, batches(+POST). Everything else = mock UI.
+LIVE pages: `/master-data` (products+units+brand-owners+batches; create/commit/
+add-batch), `/events` (stream+trace+recall; record-event), `/fields` (old design).
+Live API: health, fields, products(+:id,+POST,+commit), manufacturing-units,
+brand-owners, batches(+POST), events(+POST). Everything else = mock UI.
 
 ### Next up (connect order)
-- **Events** (Commission…Recall) — the workflow spine; big, needs a plan. Feeds
-  trace/recall/FEFO/dashboard.
 - **Users/Roles** (tenant-scoped) — groundwork for real auth.
-- **Dashboard** partial-live (product/GTIN/batch KPIs now that those exist).
-- Rebuild `/fields` on the new design.
+- **Dashboard** partial-live (product/GTIN/batch/event KPIs all exist now).
+- Rebuild `/fields` on the new design (+ create/deactivate-field endpoints).
+- Dealer/shipment slice → real recall fan-out + multi-dealer dispatch.
 - After connections: tests per component; OIDC to replace `x-tenant-id` stand-in.

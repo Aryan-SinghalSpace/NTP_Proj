@@ -144,4 +144,44 @@ export const batch = pgTable(
   }),
 );
 
-export const schema = { tenant, fieldDefinition, product, manufacturingUnit, brandOwner, batch };
+/**
+ * Event — append-only trace spine (data-model §6.2). Never updated; corrections
+ * are new compensating events. Tenant-scoped under RLS. `occurred_at` = business
+ * time, `recorded_at` = ingest time.
+ */
+export const event = pgTable(
+  'event',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    eventType: text('event_type').notNull(),
+    occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull().defaultNow(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true }).notNull().defaultNow(),
+    actor: text('actor'),
+    subjectKind: text('subject_kind').notNull().default('batch'),
+    subjectId: uuid('subject_id'),
+    subjectLabel: text('subject_label'),
+    location: text('location'),
+    quantity: integer('quantity'),
+    detail: text('detail'),
+    payload: jsonb('payload').notNull().default({}),
+    lineage: jsonb('lineage'),
+    idempotencyKey: text('idempotency_key'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    timeIdx: index('event_tenant_time_idx').on(t.tenantId, t.occurredAt),
+    subjectIdx: index('event_subject_idx').on(t.subjectId),
+    typeIdx: index('event_tenant_type_idx').on(t.tenantId, t.eventType),
+  }),
+);
+
+export const schema = {
+  tenant,
+  fieldDefinition,
+  product,
+  manufacturingUnit,
+  brandOwner,
+  batch,
+  event,
+};
