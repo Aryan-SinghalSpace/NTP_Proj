@@ -355,3 +355,96 @@ export function getUsers(): Promise<ApiUser[]> {
 export function createUser(payload: { name: string; email: string; roleId?: string }): Promise<ApiUser> {
   return postJson<ApiUser>('/api/users', payload);
 }
+
+/* ── Tenant settings, current user, identity schemes, approvals, audit ────── */
+
+export interface ApiTenant {
+  id: string;
+  name: string;
+  slug: string;
+  tier: string;
+  region: string;
+  status: string;
+  settings: { gs1Mode?: boolean; locale?: string; timezone?: string } & Record<string, unknown>;
+}
+export function getTenant(): Promise<ApiTenant> {
+  return getJson<ApiTenant>('/api/tenant');
+}
+export function updateTenant(patch: { name?: string; settings?: Record<string, unknown> }): Promise<ApiTenant> {
+  return patchJson<ApiTenant>('/api/tenant', patch);
+}
+
+export interface ApiMe {
+  id: string;
+  name: string;
+  email: string;
+  roleName: string | null;
+  status: string;
+}
+export function getMe(): Promise<ApiMe | null> {
+  return getJson<ApiMe | null>('/api/me');
+}
+
+export interface ApiIdentityScheme {
+  id: string;
+  kind: 'standard' | 'custom';
+  name: string;
+  short: string;
+  summary: string;
+  tone: 'success' | 'info' | 'violet' | 'teal';
+  isPrimary: boolean;
+  enabled: boolean;
+  rules: string[];
+  allocation: { label: string; value: string; mono?: boolean }[];
+  pattern: string | null;
+  example: string | null;
+  scope: string | null;
+  issued: number;
+}
+export function getIdentitySchemes(): Promise<ApiIdentityScheme[]> {
+  return getJson<ApiIdentityScheme[]>('/api/identity-schemes');
+}
+export function toggleIdentityScheme(id: string, enabled: boolean): Promise<ApiIdentityScheme> {
+  return patchJson<ApiIdentityScheme>(`/api/identity-schemes/${id}`, { enabled });
+}
+export function createIdentityScheme(payload: {
+  name: string;
+  pattern: string;
+  example?: string;
+  scope?: string;
+}): Promise<ApiIdentityScheme> {
+  return postJson<ApiIdentityScheme>('/api/identity-schemes', payload);
+}
+
+export interface ApiApproval {
+  id: string;
+  kind: 'field-promotion' | 'workflow-publish';
+  title: string;
+  target: string;
+  detail: string;
+  requester: string;
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+  decidedAt: string | null;
+}
+export function getApprovals(): Promise<ApiApproval[]> {
+  return getJson<ApiApproval[]>('/api/approvals');
+}
+export function decideApproval(id: string, decision: 'approved' | 'rejected'): Promise<ApiApproval> {
+  return patchJson<ApiApproval>(`/api/approvals/${id}`, { decision });
+}
+
+export interface ApiAudit {
+  id: string;
+  occurredAt: string;
+  actor: string;
+  actorRole: string;
+  action: string;
+  entity: string;
+  entityId: string;
+  version: string;
+  diff: string;
+}
+export function getAudit(limit = 200): Promise<ApiAudit[]> {
+  return getJson<ApiAudit[]>(`/api/audit?limit=${limit}`);
+}

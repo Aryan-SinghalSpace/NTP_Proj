@@ -4,11 +4,15 @@ import { TenantDbService } from '../db/tenant-db.service';
 import { currentTenant } from '../db/tenant-context';
 import { role } from '../db/schema';
 import { AppException } from '../common/errors/app-exception';
+import { AuditService } from '../audit/audit.service';
 import type { CreateRoleInput, UpdateRoleInput } from './access.dto';
 
 @Injectable()
 export class RolesService {
-  constructor(private readonly db: TenantDbService) {}
+  constructor(
+    private readonly db: TenantDbService,
+    private readonly audit: AuditService,
+  ) {}
 
   /** Roles for the tenant, each with a live member count (from tenant_user). */
   async list() {
@@ -37,6 +41,7 @@ export class RolesService {
             isSystem: false,
           })
           .returning();
+        await this.audit.record({ action: 'Created', entity: 'role', entityId: input.name, diff: 'New role created.' });
         return { ...rows[0]!, members: 0 };
       } catch (err) {
         if ((err as { code?: string }).code === '23505') {
@@ -62,6 +67,12 @@ export class RolesService {
           })
           .where(eq(role.id, id))
           .returning();
+        await this.audit.record({
+          action: 'Updated',
+          entity: 'role',
+          entityId: rows[0]!.name,
+          diff: patch.permissions ? 'Permission matrix updated.' : 'Role details updated.',
+        });
         return rows[0];
       } catch (err) {
         if ((err as { code?: string }).code === '23505') {

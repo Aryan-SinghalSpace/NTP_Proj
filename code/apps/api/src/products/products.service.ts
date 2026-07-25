@@ -5,11 +5,15 @@ import { TenantDbService } from '../db/tenant-db.service';
 import { currentTenant } from '../db/tenant-context';
 import { product } from '../db/schema';
 import { AppException } from '../common/errors/app-exception';
+import { AuditService } from '../audit/audit.service';
 import type { CreateProductInput } from './product.dto';
 
 @Injectable()
 export class ProductsService {
-  constructor(private readonly db: TenantDbService) {}
+  constructor(
+    private readonly db: TenantDbService,
+    private readonly audit: AuditService,
+  ) {}
 
   /**
    * All products for the current tenant, each with a live batch count derived
@@ -64,6 +68,12 @@ export class ProductsService {
         })
         .returning(),
     );
+    await this.audit.record({
+      action: 'Created',
+      entity: 'product',
+      entityId: rows[0]!.id,
+      diff: `New product draft "${input.name}".`,
+    });
     return rows[0];
   }
 
@@ -91,6 +101,13 @@ export class ProductsService {
           .set({ gtin, status: 'committed', committedAt: new Date(), updatedAt: new Date() })
           .where(eq(product.id, id))
           .returning();
+        await this.audit.record({
+          action: 'Updated',
+          entity: 'product',
+          entityId: id,
+          version: 'draft → committed',
+          diff: `GTIN ${gtin} committed; identity locked (invariant #7).`,
+        });
         return rows[0];
       } catch (err) {
         // 23505 = unique_violation on the (tenant_id, gtin) partial index.

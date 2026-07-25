@@ -1,26 +1,54 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PageShell } from '../../components/PageShell';
 import { DownloadIcon, SearchIcon } from '../../components/icons';
-import { auditLog, auditActions, type AuditAction } from '../../data_mock/audit';
+import { getAudit, type ApiAudit } from '../../lib/api';
 
-const actionStyle: Record<AuditAction, { background: string; color: string }> = {
+const actionStyle: Record<string, { background: string; color: string }> = {
   Created: { background: 'var(--success-soft)', color: 'var(--success-fg)' },
   Updated: { background: 'var(--info-soft)', color: 'var(--info-fg)' },
   Deactivated: { background: 'var(--warning-soft)', color: 'var(--warning-fg)' },
+  Reactivated: { background: 'var(--teal-soft)', color: 'var(--teal)' },
   Published: { background: 'var(--violet-soft)', color: 'var(--violet)' },
 };
+const FILTERS = ['All', 'Created', 'Updated', 'Deactivated', 'Reactivated', 'Published'];
+
+function fmtTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+}
+function startOfDay(d: Date): number {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+function fmtDay(iso: string): string {
+  const d = new Date(iso);
+  const diff = Math.round((startOfDay(new Date()) - startOfDay(d)) / 86400000);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  return d.toLocaleDateString([], { day: '2-digit', month: 'short' });
+}
 
 export default function AuditPage() {
+  const [rows, setRows] = useState<ApiAudit[] | null>(null);
   const [query, setQuery] = useState('');
-  const [action, setAction] = useState<'All' | AuditAction>('All');
+  const [action, setAction] = useState('All');
 
-  const rows = auditLog.filter((e) => {
+  useEffect(() => {
+    getAudit(300)
+      .then(setRows)
+      .catch(() => setRows([]));
+  }, []);
+
+  const all = rows ?? [];
+  const filtered = all.filter((e) => {
     const matchAction = action === 'All' || e.action === action;
     const q = query.trim().toLowerCase();
     const matchQuery =
-      !q || e.entity.toLowerCase().includes(q) || e.entityId.toLowerCase().includes(q) || e.actor.toLowerCase().includes(q);
+      !q ||
+      e.entity.toLowerCase().includes(q) ||
+      e.entityId.toLowerCase().includes(q) ||
+      e.actor.toLowerCase().includes(q) ||
+      e.diff.toLowerCase().includes(q);
     return matchAction && matchQuery;
   });
 
@@ -28,7 +56,7 @@ export default function AuditPage() {
     <PageShell
       active="/audit"
       title="Audit Log"
-      subtitle="Append-only, versioned history of every configuration change (invariants 2 & 4)."
+      subtitle="Acme Foods · live append-only change history · every change auditable (invariant 2)"
       actions={
         <button className="inline-flex h-10 items-center gap-2 rounded-xl border border-border-strong bg-surface px-4 text-[13.5px] font-semibold hover:bg-surface-hover">
           <DownloadIcon width={16} height={16} /> Export
@@ -41,24 +69,26 @@ export default function AuditPage() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search entity, id or actor…"
+            placeholder="Search entity, actor or change…"
             className="w-full bg-transparent outline-none placeholder:text-subtle"
           />
         </div>
         <div className="flex flex-wrap gap-1 rounded-xl border border-border bg-surface-2 p-1">
-          {(['All', ...auditActions] as const).map((a) => (
+          {FILTERS.map((f) => (
             <button
-              key={a}
-              onClick={() => setAction(a)}
+              key={f}
+              onClick={() => setAction(f)}
               className={`rounded-lg px-2.5 py-1.5 text-[12.5px] font-semibold ${
-                action === a ? 'bg-surface text-text shadow-sm' : 'text-muted'
+                action === f ? 'bg-surface text-text shadow-sm' : 'text-muted'
               }`}
             >
-              {a}
+              {f}
             </button>
           ))}
         </div>
-        <span className="ml-auto text-[12.5px] text-muted">{rows.length} entries</span>
+        <span className="ml-auto text-[12.5px] text-muted">
+          {filtered.length} of {all.length} entries
+        </span>
       </div>
 
       <div className="overflow-hidden rounded-3xl border border-border bg-surface">
@@ -69,44 +99,61 @@ export default function AuditPage() {
               <th className="px-4 py-2.5 font-semibold">Actor</th>
               <th className="px-4 py-2.5 font-semibold">Action</th>
               <th className="px-4 py-2.5 font-semibold">Entity</th>
-              <th className="px-4 py-2.5 font-semibold">Version</th>
               <th className="px-4 py-2.5 font-semibold">Change</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((e) => (
-              <tr key={e.id} className="border-b border-border last:border-0 align-top">
-                <td className="px-4 py-3 text-xs text-muted">
-                  <div className="font-mono font-semibold text-text">{e.time}</div>
-                  {e.date}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="font-semibold">{e.actor}</div>
-                  <div className="text-xs text-muted">{e.actorRole}</div>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="rounded-full px-2.5 py-1 text-[11px] font-bold" style={actionStyle[e.action]}>
-                    {e.action}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="font-mono text-[12px] text-muted">{e.entity}</div>
-                  <div className="font-mono text-[12.5px] font-semibold">{e.entityId}</div>
-                </td>
-                <td className="px-4 py-3 font-mono text-[12px] text-muted">{e.version || '—'}</td>
-                <td className="px-4 py-3 text-[12.5px] text-muted">{e.diff}</td>
-              </tr>
-            ))}
-            {rows.length === 0 && (
+            {rows === null && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-muted">
-                  No entries match.
+                <td colSpan={5} className="px-4 py-10 text-center text-muted">
+                  Loading…
+                </td>
+              </tr>
+            )}
+            {rows !== null &&
+              filtered.map((e) => (
+                <tr key={e.id} className="border-b border-border last:border-0 align-top">
+                  <td className="px-4 py-3 text-xs text-muted">
+                    <div className="font-mono font-semibold text-text">{fmtTime(e.occurredAt)}</div>
+                    {fmtDay(e.occurredAt)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="font-semibold">{e.actor}</div>
+                    <div className="text-[11.5px] text-muted">{e.actorRole}</div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className="rounded-full px-2.5 py-1 text-[11px] font-bold"
+                      style={actionStyle[e.action] ?? { background: 'var(--surface-2)', color: 'var(--muted)' }}
+                    >
+                      {e.action}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="font-mono text-[12px] font-semibold">{e.entity}</div>
+                    <div className="font-mono text-[11.5px] text-muted">
+                      {e.entityId}
+                      {e.version ? ` · ${e.version}` : ''}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-[12.5px] text-muted">{e.diff}</td>
+                </tr>
+              ))}
+            {rows !== null && filtered.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-4 py-10 text-center text-muted">
+                  No audit entries match your filters.
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
+
+      <p className="mt-6 text-[13px] text-subtle">
+        Entries are <span className="font-semibold text-teal">live</span> and append-only — recorded
+        automatically whenever a product, field, role, user, scheme, approval or setting changes.
+      </p>
     </PageShell>
   );
 }

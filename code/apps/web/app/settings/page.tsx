@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PageShell } from '../../components/PageShell';
-import {
-  BuildingIcon,
-  SettingsIcon,
-  ShieldIcon,
-  CheckIcon,
-  AlertIcon,
-} from '../../components/icons';
+import { BuildingIcon, SettingsIcon, ShieldIcon, CheckIcon, AlertIcon } from '../../components/icons';
+import { getTenant, updateTenant, type ApiTenant } from '../../lib/api';
 
 export default function SettingsPage() {
+  const [tenant, setTenant] = useState<ApiTenant | null>(null);
+  const [name, setName] = useState('');
   const [gs1, setGs1] = useState(false);
+  const [locale, setLocale] = useState('en-IN');
+  const [timezone, setTimezone] = useState('Asia/Kolkata');
+  const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
   const flash = (t: string) => {
@@ -19,23 +19,45 @@ export default function SettingsPage() {
     window.setTimeout(() => setNotice(null), 2600);
   };
 
-  const toggleGs1 = () => {
-    setGs1((v) => {
-      const next = !v;
-      flash(next ? 'GS1 conformance mode enabled' : 'GS1 conformance mode disabled');
-      return next;
-    });
-  };
+  useEffect(() => {
+    getTenant()
+      .then((t) => {
+        setTenant(t);
+        setName(t.name);
+        setGs1(!!t.settings?.gs1Mode);
+        setLocale(t.settings?.locale ?? 'en-IN');
+        setTimezone(t.settings?.timezone ?? 'Asia/Kolkata');
+      })
+      .catch(() => flash('Could not reach the API'));
+  }, []);
+
+  async function save() {
+    if (saving) return;
+    setSaving(true);
+    try {
+      const t = await updateTenant({ name, settings: { gs1Mode: gs1, locale, timezone } });
+      setTenant(t);
+      flash('Settings saved');
+    } catch (e) {
+      flash(e instanceof Error ? e.message : 'Could not save');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <PageShell
       active="/settings"
       title="Settings"
-      subtitle="Acme Foods · tenant-level configuration · organisation profile, branding & compliance"
+      subtitle="Acme Foods · live via Postgres RLS · organisation profile & compliance"
       actions={
-        <Btn grad icon={<CheckIcon width={16} height={16} />} onClick={() => flash('Settings saved')}>
-          Save changes
-        </Btn>
+        <button
+          onClick={save}
+          disabled={saving || !tenant}
+          className="brand-grad inline-flex h-10 items-center gap-2 rounded-xl px-4 text-[13.5px] font-semibold text-white disabled:opacity-50"
+        >
+          <CheckIcon width={16} height={16} /> {saving ? 'Saving…' : 'Save changes'}
+        </button>
       }
     >
       {notice && (
@@ -45,50 +67,16 @@ export default function SettingsPage() {
       )}
 
       <div className="flex flex-col gap-5">
-        {/* Organisation profile */}
-        <Section
-          icon={<BuildingIcon width={18} height={18} />}
-          title="Organisation profile"
-          desc="How this tenant identifies itself across the platform."
-        >
+        <Section icon={<BuildingIcon width={18} height={18} />} title="Organisation profile" desc="How this tenant identifies itself across the platform.">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="Organisation name" value="Acme Foods Pvt. Ltd." />
-            <Field label="Region" value="India" locked hint="Single-region (India) for v1 — DPDP residency." />
-            <Field label="Locale" value="en-IN" />
-            <Field label="Time zone" value="Asia/Kolkata (IST · UTC+5:30)" />
+            <EditField label="Organisation name" value={name} onChange={setName} />
+            <ReadField label="Region" value={tenant?.region === 'in' ? 'India' : tenant?.region ?? '—'} locked hint="Single-region (India) for v1 — DPDP residency." />
+            <EditField label="Locale" value={locale} onChange={setLocale} />
+            <EditField label="Time zone" value={timezone} onChange={setTimezone} />
           </div>
         </Section>
 
-        {/* Branding */}
-        <Section
-          icon={<SettingsIcon width={18} height={18} />}
-          title="Branding"
-          desc="Colours and logo shown on this tenant's surfaces and labels."
-        >
-          <div className="flex flex-wrap items-center gap-4">
-            <span className="grid h-14 w-14 place-items-center rounded-2xl text-xl font-extrabold text-white brand-grad">
-              A
-            </span>
-            <div className="flex flex-col gap-2">
-              <span className="text-[12.5px] font-semibold text-muted">Brand mark & accent</span>
-              <div className="flex items-center gap-2">
-                <Swatch label="Primary" color="var(--primary)" />
-                <Swatch label="Teal" color="var(--teal)" />
-                <Swatch label="Amber" color="var(--amber)" />
-              </div>
-            </div>
-            <Btn className="ml-auto" onClick={() => flash('Logo upload — coming soon')}>
-              Replace logo
-            </Btn>
-          </div>
-        </Section>
-
-        {/* GS1 conformance mode — toggle row */}
-        <Section
-          icon={<ShieldIcon width={18} height={18} />}
-          title="GS1 conformance mode"
-          desc="Opt-in. Enforces GS1 allocation rules, Digital Link & EPCIS-style export. The platform is not bound to GS1."
-        >
+        <Section icon={<ShieldIcon width={18} height={18} />} title="GS1 conformance mode" desc="Opt-in. Enforces GS1 allocation rules, Digital Link & EPCIS-style export. The platform is not bound to GS1.">
           <div className="flex items-center gap-4 rounded-2xl border border-border bg-surface-2 p-4">
             <div className="min-w-0">
               <div className="text-[13.5px] font-semibold">Enforce GS1 conformance</div>
@@ -98,82 +86,40 @@ export default function SettingsPage() {
                   : 'Inactive — GTIN supported as the primary scheme without GS1 enforcement.'}
               </div>
             </div>
-            <Toggle on={gs1} onClick={toggleGs1} />
+            <Toggle on={gs1} onClick={() => setGs1((v) => !v)} />
           </div>
+          <p className="mt-2 text-[11.5px] text-subtle">Persisted to the tenant’s settings — remember to Save.</p>
         </Section>
 
-        {/* Data residency note */}
-        <Section
-          icon={<AlertIcon width={18} height={18} />}
-          title="Data residency"
-          desc="Where this tenant's data lives."
-        >
+        <Section icon={<AlertIcon width={18} height={18} />} title="Data residency" desc="Where this tenant's data lives.">
           <div className="flex items-start gap-3 rounded-2xl bg-[var(--warning-soft)] p-4 text-[var(--warning-fg)]">
             <AlertIcon width={18} height={18} className="mt-0.5 shrink-0" />
             <p className="text-[12.5px] font-semibold">
-              All data for this tenant is stored in the India region (DPDP-compliant). Multi-region
-              support is planned for v2 — residency cannot be changed in v1.
+              All data for this tenant is stored in the India region (DPDP-compliant). Multi-region support is
+              planned for v2 — residency cannot be changed in v1.
             </p>
           </div>
         </Section>
 
-        {/* Danger zone */}
-        <Section
-          icon={<AlertIcon width={18} height={18} />}
-          title="Danger zone"
-          desc="Irreversible tenant-level actions."
-          danger
-        >
-          <div className="flex flex-col gap-3">
-            <DangerRow
-              title="Suspend tenant"
-              desc="Freeze all access; data is preserved. Reversible by a Platform Admin."
-              action="Suspend"
-              onClick={() => flash('Suspend requires Platform Admin approval')}
-            />
-            <DangerRow
-              title="Deactivate organisation"
-              desc="Deactivate, never delete — historical records remain viewable."
-              action="Deactivate"
-              onClick={() => flash('Deactivation requires Platform Admin approval')}
-            />
+        <Section icon={<SettingsIcon width={18} height={18} />} title="Tenant" desc="Read-only platform-managed attributes.">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <ReadField label="Slug" value={tenant?.slug ?? '—'} mono />
+            <ReadField label="Tier" value={tenant?.tier ?? '—'} />
+            <ReadField label="Status" value={tenant?.status ?? '—'} />
           </div>
         </Section>
       </div>
-
-      <p className="mt-8 text-[13px] text-subtle">
-        Scaffold v0 · Command × Bento · mock data (frontend-first). Live data arrives when this
-        page is connected to the API.
-      </p>
     </PageShell>
   );
 }
 
-function Section({
-  icon,
-  title,
-  desc,
-  danger,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-  danger?: boolean;
-  children: React.ReactNode;
-}) {
+function Section({ icon, title, desc, children }: { icon: React.ReactNode; title: string; desc: string; children: React.ReactNode }) {
   return (
-    <div className={`rounded-3xl border bg-surface p-6 ${danger ? 'border-[var(--rose)]/40' : 'border-border'}`}>
+    <div className="rounded-3xl border border-border bg-surface p-6">
       <div className="mb-4 flex items-start gap-3">
-        <span
-          className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${
-            danger ? 'bg-[var(--rose-soft)] text-rose' : 'bg-primary-soft text-primary'
-          }`}
-        >
-          {icon}
-        </span>
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">{icon}</span>
         <div>
-          <h3 className={`text-[15px] font-bold ${danger ? 'text-rose' : ''}`}>{title}</h3>
+          <h3 className="text-[15px] font-bold">{title}</h3>
           <p className="mt-0.5 text-[12.5px] text-muted">{desc}</p>
         </div>
       </div>
@@ -182,39 +128,31 @@ function Section({
   );
 }
 
-function Field({
-  label,
-  value,
-  locked,
-  hint,
-}: {
-  label: string;
-  value: string;
-  locked?: boolean;
-  hint?: string;
-}) {
+function EditField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div>
       <label className="mb-1.5 block text-[12px] font-semibold text-muted">{label}</label>
-      <div className="flex h-10 items-center gap-2 rounded-xl border border-border-strong bg-surface px-3 text-[13.5px]">
-        <span className="font-semibold">{value}</span>
-        {locked && (
-          <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-0.5 text-[10.5px] font-bold text-muted">
-            Locked
-          </span>
-        )}
-      </div>
-      {hint && <p className="mt-1 text-[11.5px] text-subtle">{hint}</p>}
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-10 w-full rounded-xl border border-border-strong bg-surface px-3 text-[13.5px] font-semibold outline-none focus:border-primary"
+      />
     </div>
   );
 }
 
-function Swatch({ label, color }: { label: string; color: string }) {
+function ReadField({ label, value, locked, hint, mono }: { label: string; value: string; locked?: boolean; hint?: string; mono?: boolean }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2 py-1 text-[11px] font-semibold text-muted">
-      <span className="h-3 w-3 rounded-full" style={{ background: color }} />
-      {label}
-    </span>
+    <div>
+      <label className="mb-1.5 block text-[12px] font-semibold text-muted">{label}</label>
+      <div className="flex h-10 items-center gap-2 rounded-xl border border-border-strong bg-surface-2 px-3 text-[13.5px]">
+        <span className={`font-semibold capitalize ${mono ? 'font-mono normal-case' : ''}`}>{value}</span>
+        {locked && (
+          <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-surface px-2 py-0.5 text-[10.5px] font-bold text-muted">Locked</span>
+        )}
+      </div>
+      {hint && <p className="mt-1 text-[11.5px] text-subtle">{hint}</p>}
+    </div>
   );
 }
 
@@ -224,70 +162,9 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
       onClick={onClick}
       role="switch"
       aria-checked={on}
-      className={`relative ml-auto h-6 w-11 shrink-0 rounded-full transition ${
-        on ? 'bg-primary' : 'bg-border-strong'
-      }`}
+      className={`relative ml-auto h-6 w-11 shrink-0 rounded-full transition ${on ? 'bg-primary' : 'bg-border-strong'}`}
     >
-      <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
-          on ? 'left-[22px]' : 'left-0.5'
-        }`}
-      />
-    </button>
-  );
-}
-
-function DangerRow({
-  title,
-  desc,
-  action,
-  onClick,
-}: {
-  title: string;
-  desc: string;
-  action: string;
-  onClick: () => void;
-}) {
-  return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-border p-4">
-      <div className="min-w-0">
-        <div className="text-[13.5px] font-semibold">{title}</div>
-        <div className="text-[12.5px] text-muted">{desc}</div>
-      </div>
-      <button
-        onClick={onClick}
-        className="ml-auto inline-flex h-10 items-center rounded-xl border border-[var(--rose)]/50 bg-[var(--rose-soft)] px-4 text-[13.5px] font-semibold text-rose hover:opacity-90"
-      >
-        {action}
-      </button>
-    </div>
-  );
-}
-
-function Btn({
-  children,
-  icon,
-  grad,
-  className,
-  onClick,
-}: {
-  children: React.ReactNode;
-  icon?: React.ReactNode;
-  grad?: boolean;
-  className?: string;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`inline-flex h-10 items-center gap-2 rounded-xl px-4 text-[13.5px] font-semibold ${
-        grad
-          ? 'brand-grad border-transparent text-white'
-          : 'border border-border-strong bg-surface text-text hover:bg-surface-hover'
-      } ${className ?? ''}`}
-    >
-      {icon}
-      {children}
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? 'left-[22px]' : 'left-0.5'}`} />
     </button>
   );
 }

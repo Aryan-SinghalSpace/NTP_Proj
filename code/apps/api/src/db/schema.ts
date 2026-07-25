@@ -209,6 +209,68 @@ export const tenantUser = pgTable(
   (t) => ({ roleIdx: index('tenant_user_role_idx').on(t.roleId) }),
 );
 
+/** Tenant identity schemes (GTIN/UUID standard cards + custom coded schemes). */
+export const identityScheme = pgTable(
+  'identity_scheme',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    kind: text('kind').notNull(),
+    name: text('name').notNull(),
+    short: text('short').notNull().default(''),
+    summary: text('summary').notNull().default(''),
+    tone: text('tone').notNull().default('info'),
+    isPrimary: boolean('is_primary').notNull().default(false),
+    enabled: boolean('enabled').notNull().default(true),
+    rules: jsonb('rules').notNull().default([]),
+    allocation: jsonb('allocation').notNull().default([]),
+    pattern: text('pattern'),
+    example: text('example'),
+    scope: text('scope'),
+    issued: integer('issued').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ tenantIdx: index('identity_scheme_tenant_idx').on(t.tenantId) }),
+);
+
+/** The approvals queue — field-promotion & workflow-publish sign-offs. */
+export const approvalRequest = pgTable(
+  'approval_request',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    kind: text('kind').notNull(),
+    title: text('title').notNull(),
+    target: text('target').notNull().default(''),
+    detail: text('detail').notNull().default(''),
+    requester: text('requester').notNull().default(''),
+    status: text('status').notNull().default('pending'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    decidedAt: timestamp('decided_at', { withTimezone: true }),
+  },
+  (t) => ({ tenantIdx: index('approval_request_tenant_idx').on(t.tenantId, t.status) }),
+);
+
+/** Append-only audit log (invariant #2 — every change auditable). */
+export const auditEntry = pgTable(
+  'audit_entry',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull().defaultNow(),
+    actor: text('actor').notNull().default('System'),
+    actorRole: text('actor_role').notNull().default(''),
+    action: text('action').notNull(),
+    entity: text('entity').notNull(),
+    entityId: text('entity_id').notNull().default(''),
+    version: text('version').notNull().default(''),
+    diff: text('diff').notNull().default(''),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ timeIdx: index('audit_entry_tenant_time_idx').on(t.tenantId, t.occurredAt) }),
+);
+
 export const schema = {
   tenant,
   fieldDefinition,
@@ -219,4 +281,7 @@ export const schema = {
   event,
   role,
   tenantUser,
+  identityScheme,
+  approvalRequest,
+  auditEntry,
 };

@@ -5,11 +5,15 @@ import { TenantDbService } from '../db/tenant-db.service';
 import { currentTenant } from '../db/tenant-context';
 import { fieldDefinition } from '../db/schema';
 import { AppException } from '../common/errors/app-exception';
+import { AuditService } from '../audit/audit.service';
 import type { CreateFieldInput } from './field.dto';
 
 @Injectable()
 export class FieldsService {
-  constructor(private readonly db: TenantDbService) {}
+  constructor(
+    private readonly db: TenantDbService,
+    private readonly audit: AuditService,
+  ) {}
 
   /**
    * Field definitions for an entity. RLS returns Core/Super (tenant_id IS NULL)
@@ -61,6 +65,12 @@ export class FieldsService {
           isLocked: false,
         })
         .returning();
+      await this.audit.record({
+        action: 'Created',
+        entity: 'field_definition',
+        entityId: `${input.entity}.${input.key}`,
+        diff: `New Tenant Custom field · type=${input.dataType}${input.required ? ' · required' : ''}.`,
+      });
       return rows[0];
     });
   }
@@ -79,6 +89,12 @@ export class FieldsService {
         .set({ status, updatedAt: new Date() })
         .where(eq(fieldDefinition.id, id))
         .returning();
+      await this.audit.record({
+        action: status === 'deactivated' ? 'Deactivated' : 'Reactivated',
+        entity: 'field_definition',
+        entityId: `${field.entity}.${field.key}`,
+        diff: `active ${field.status === 'active'} → ${status === 'active'}; historical values preserved.`,
+      });
       return updated[0];
     });
   }

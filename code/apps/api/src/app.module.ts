@@ -8,10 +8,15 @@ import { MasterDataModule } from './master-data/master-data.module';
 import { BatchesModule } from './batches/batches.module';
 import { EventsModule } from './events/events.module';
 import { AccessModule } from './access/access.module';
+import { AuditModule } from './audit/audit.module';
+import { TenantModule } from './tenant/tenant.module';
+import { IdentitySchemesModule } from './identity-schemes/identity-schemes.module';
+import { ApprovalsModule } from './approvals/approvals.module';
 
 @Module({
   imports: [
     DbModule,
+    AuditModule,
     HealthModule,
     FieldsModule,
     ProductsModule,
@@ -19,6 +24,9 @@ import { AccessModule } from './access/access.module';
     BatchesModule,
     EventsModule,
     AccessModule,
+    TenantModule,
+    IdentitySchemesModule,
+    ApprovalsModule,
   ],
 })
 export class AppModule implements NestModule {

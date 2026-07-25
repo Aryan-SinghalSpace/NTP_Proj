@@ -4,11 +4,15 @@ import { TenantDbService } from '../db/tenant-db.service';
 import { currentTenant } from '../db/tenant-context';
 import { tenantUser, role } from '../db/schema';
 import { AppException } from '../common/errors/app-exception';
+import { AuditService } from '../audit/audit.service';
 import type { CreateUserInput } from './access.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly db: TenantDbService) {}
+  constructor(
+    private readonly db: TenantDbService,
+    private readonly audit: AuditService,
+  ) {}
 
   /** Tenant users with their role name (left-joined). RLS-scoped. */
   list() {
@@ -45,6 +49,12 @@ export class UsersService {
             status: 'invited',
           })
           .returning();
+        await this.audit.record({
+          action: 'Created',
+          entity: 'tenant_user',
+          entityId: input.email,
+          diff: `Invited ${input.name}.`,
+        });
         return rows[0];
       } catch (err) {
         if ((err as { code?: string }).code === '23505') {

@@ -55,6 +55,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
       const raw = typeof body === 'object' && body !== null ? (body as { message?: unknown }).message : body;
       details = Array.isArray(raw) ? raw : undefined;
       internal = `${exception.name}: ${typeof raw === 'string' ? raw : JSON.stringify(raw)}`;
+    } else if ((exception as { code?: string })?.code === '22P02') {
+      // Postgres invalid_text_representation — e.g. a malformed UUID in the path.
+      status = HttpStatus.BAD_REQUEST;
+      code = 'TW-GEN-400';
+      internal = `invalid input (22P02): ${exception instanceof Error ? exception.message : String(exception)}`;
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       code = 'TW-GEN-500';

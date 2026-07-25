@@ -9,6 +9,35 @@
 
 ---
 
+## 2026-07-25 — Config pages wired: settings, account, identity-schemes, approvals, audit
+
+- **API**: `0007_config.sql` — relaxed tenant RLS (tenant may self-update its own
+  row) + `identity_scheme`, `approval_request`, `audit_entry` tables + RLS +
+  grants + seeds (+ default tenant settings jsonb). New modules:
+  - `TenantModule`: `GET/PATCH /api/tenant` (name + settings jsonb, merge; tier/
+    status/slug stay platform-managed) and `GET /api/me` (current user =
+    active Tenant Admin stand-in until OIDC).
+  - `IdentitySchemesModule`: `GET /api/identity-schemes`, `POST` (custom),
+    `PATCH /:id` (enable/disable).
+  - `ApprovalsModule`: `GET /api/approvals`, `PATCH /:id` (approve/reject).
+  - **`AuditModule` (@Global)**: `GET /api/audit` + `AuditService.record()`.
+    **Hooked into every mutation** — product create/commit, field create/
+    deactivate/reactivate, role create/update, user invite, identity-scheme
+    create/toggle, approval decision, tenant settings → the audit log now fills
+    live as you use the app (invariant #2). record() swallows its own errors so
+    it can never break the primary op.
+  - Filter robustness: Postgres `22P02` (bad UUID in path) → friendly `TW-GEN-400`
+    instead of 500.
+- **Web**: all five pages live via `lib/api.ts` (+`getTenant/updateTenant/getMe`,
+  identity-scheme/approval/audit fetchers): `/settings` (org name + GS1 toggle +
+  locale/timezone → PATCH save), `/account` (live profile from /api/me), 
+  `/identity-schemes` (standard cards + custom table with enable toggle + New
+  scheme modal), `/approvals` (live queue + Approve/Reject → PATCH), `/audit`
+  (live append-only log + action filter chips + search).
+- **Verified**: all 5 pages HTTP 200; tenant PATCH merges settings; identity 5
+  schemes; approvals decide works + **audit hook fires** (6→7 on a decision);
+  malformed uuid → 400; web typecheck clean.
+
 ## 2026-07-25 — Users & Roles wired to live backend
 
 - **API**: `0006_users_roles.sql` — `role` (name, description, `permissions` jsonb

@@ -118,6 +118,10 @@ log aggregator). Two lifecycle events cover every request:
   full `stack`. Emitted by `AllExceptionsFilter` for every thrown error.
 - `server.started` — emitted once on boot.
 
+The filter also maps common Postgres errors that reach it unhandled: **`22P02`**
+(invalid text representation — e.g. a malformed UUID in a path param) → `TW-GEN-400`
+(so a bad id returns a friendly 400, not a 500).
+
 Example (an invalid-GTIN attempt):
 
 ```json
