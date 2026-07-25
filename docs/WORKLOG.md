@@ -9,6 +9,22 @@
 
 ---
 
+## 2026-07-25 — Admin console wired (platform super-admin, cross-tenant)
+
+- **API**: `0010_more_tenants.sql` seeds 4 more tenants (varied status). `AdminModule`
+  (platform-role-guarded via `x-platform: 1` stand-in → `TW-TENANT-403` otherwise):
+  `GET /api/admin/tenants` (all tenants + derived user/product/event counts),
+  `GET /api/admin/super-fields` (tier=super field defs + pending field-promotion
+  approvals), `GET /api/admin/usage` (tenant status split, total events/products,
+  top tenants by events). RLS returns cross-tenant rows under the platform role.
+- **Web**: `lib/api.ts` +`getPlatform` helper (x-platform:1) + admin fetchers.
+  `/admin/tenants` (live table + search), `/admin/usage` (live KPIs + events-by-
+  tenant chart + top-tenants), `/admin/super-fields` (live canonical list + live
+  **promotion queue** — Promote/Reject call `decideApproval`).
+- **Verified**: 5 tenants w/ real counts (Acme 8/6/17, others 0); 3 super fields +
+  2 pending promotions; usage aggregates; **403 without platform header**; all 3
+  pages HTTP 200; typecheck clean.
+
 ## 2026-07-25 — Scanning + Reports wired (no new backend)
 
 - **`/scanning`**: mobile-PWA surface now records **real events** via the same

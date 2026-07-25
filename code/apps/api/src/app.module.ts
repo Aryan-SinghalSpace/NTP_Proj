@@ -14,6 +14,7 @@ import { IdentitySchemesModule } from './identity-schemes/identity-schemes.modul
 import { ApprovalsModule } from './approvals/approvals.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { LogisticsModule } from './logistics/logistics.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { LogisticsModule } from './logistics/logistics.module';
     ApprovalsModule,
     NotificationsModule,
     LogisticsModule,
+    AdminModule,
   ],
 })
 export class AppModule implements NestModule {

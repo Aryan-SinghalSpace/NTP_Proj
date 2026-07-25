@@ -548,3 +548,63 @@ export function updateShipmentLeg(
 export function getRecallFanout(batchId: string): Promise<ApiRecallDealer[]> {
   return getJson<ApiRecallDealer[]>(`/api/recall-fanout?batchId=${encodeURIComponent(batchId)}`);
 }
+
+/* ── Platform Super-Admin (cross-tenant; platform-role stand-in) ──────────── */
+
+/** GET as the platform role (x-platform: 1) — cross-tenant admin reads. */
+async function getPlatform<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { 'x-tenant-id': DEMO_TENANT, 'x-platform': '1' },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw await toApiError(res);
+  return (await res.json()) as T;
+}
+
+export interface ApiAdminTenant {
+  id: string;
+  name: string;
+  slug: string;
+  region: string;
+  tier: string;
+  status: string;
+  users: number;
+  products: number;
+  events: number;
+  since: string;
+}
+export interface ApiSuperField {
+  id: string;
+  key: string;
+  displayName: string;
+  dataType: string;
+  entity: string;
+  status: string;
+}
+export interface ApiPromotion {
+  id: string;
+  title: string;
+  target: string;
+  detail: string;
+  requester: string;
+  createdAt: string;
+}
+export interface ApiUsage {
+  tenantsActive: number;
+  tenantsOnboarding: number;
+  tenantsSuspended: number;
+  totalTenants: number;
+  totalEvents: number;
+  totalProducts: number;
+  topTenants: { name: string; events: number; share: number }[];
+}
+
+export function getAdminTenants(): Promise<ApiAdminTenant[]> {
+  return getPlatform<ApiAdminTenant[]>('/api/admin/tenants');
+}
+export function getAdminSuperFields(): Promise<{ fields: ApiSuperField[]; promotions: ApiPromotion[] }> {
+  return getPlatform<{ fields: ApiSuperField[]; promotions: ApiPromotion[] }>('/api/admin/super-fields');
+}
+export function getAdminUsage(): Promise<ApiUsage> {
+  return getPlatform<ApiUsage>('/api/admin/usage');
+}
