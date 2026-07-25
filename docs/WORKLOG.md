@@ -9,6 +9,27 @@
 
 ---
 
+## 2026-07-25 — Testing pass #1: Vitest harness + invariant tests (API)
+
+- **Harness**: Vitest added to `apps/api` (aligns with `field-types`). Scripts:
+  `test` (all), `test:unit` (src only, no DB), `test:watch`. `vitest.config.ts`
+  (`fileParallelism:false` — integration tests share the local Postgres).
+- **Unit (no DB)**: `error-catalog.spec.ts` (codes consistent; friendly messages
+  never leak internals; AppException maps code→status→message), `products/dto.spec.ts`
+  (create/commit/batch/event zod schemas; create never trusts tenantId/gtin from body).
+- **Integration (real Postgres + RLS)** via `test/helpers.ts` (owner client for
+  fixtures + isolated test tenants; app-role `TenantDbService` for the code under
+  test; `asTenant()` sets the ALS context the middleware normally sets):
+  - `rls.spec.ts` — **invariant #6**: a product in tenant A is invisible to B and
+    to no-tenant; the platform role reads across tenants; Core/Super fields are
+    global while a tenant-custom field is isolated.
+  - `services.spec.ts` — **#7** commit locks (GTIN + committed_at); invalid GTIN→
+    `TW-PROD-400-GTIN`; re-commit→`409-COMMITTED`; dup GTIN→`409-GTIN-TAKEN`; dup
+    batch→`TW-BATCH-409-DUP`; replayed idempotency key→`TW-EVENT-409-IDEMPOTENT`;
+    **#2** mutations write an audit_entry.
+- **Result**: `pnpm -C code --filter @tracewell/api test` → **19 passed** (+ 7 in
+  `field-types` = 26 across the repo). Integration tests need infra up.
+
 ## 2026-07-25 — Labels + Workflows wired (LAST mock pages → all pages live)
 
 - **API**: `0011_labels_workflows.sql` — `label_template` + `workflow_definition`
