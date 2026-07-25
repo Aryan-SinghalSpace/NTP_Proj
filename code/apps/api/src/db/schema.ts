@@ -53,4 +53,36 @@ export const fieldDefinition = pgTable(
   }),
 );
 
-export const schema = { tenant, fieldDefinition };
+/**
+ * Product — the core Identity & Master Data entity. UUID primary key
+ * (invariant #1); GTIN and the other identity attributes are validated columns.
+ * Tenant-scoped under RLS. The six identity attributes freeze on commit (#7).
+ */
+export const product = pgTable(
+  'product',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    // six GTIN-immutable identity attributes
+    gtin: text('gtin'),
+    brand: text('brand').notNull(),
+    name: text('name').notNull(),
+    netContent: text('net_content').notNull(),
+    packType: text('pack_type').notNull(),
+    country: text('country').notNull().default('India'),
+    // commercial / relational
+    brandOwner: text('brand_owner').notNull(),
+    category: text('category').notNull(),
+    attributes: jsonb('attributes').notNull().default({}),
+    // lifecycle
+    status: text('status').notNull().default('draft'),
+    committedAt: timestamp('committed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    tenantStatusIdx: index('product_tenant_status_idx').on(t.tenantId, t.status),
+  }),
+);
+
+export const schema = { tenant, fieldDefinition, product };
