@@ -62,6 +62,9 @@ Codes are `TW-<AREA>-<n>`. Areas: `GEN` generic · `AUTH` auth · `TENANT` tenan
 | `TW-PROD-400-GTIN` | 400 | `isValidGtin()` false — bad length or mod-10 check digit | "That GTIN isn't valid — please check the digits…" | `products.service.ts` `commit` |
 | `TW-PROD-409-COMMITTED` | 409 | Commit attempted on an already-committed product (invariant #7) | "This product is already committed, so its identity is locked…" | `products.service.ts` `commit` |
 | `TW-PROD-409-GTIN-TAKEN` | 409 | `unique_violation` on `product (tenant_id, gtin)` | "That GTIN is already assigned to another product in your account." | `products.service.ts` `commit` |
+| `TW-FIELD-404` | 404 | field_definition not visible to tenant (RLS) or absent | "That field couldn't be found." | `fields.service.ts` `setStatus` |
+| `TW-FIELD-409-DUP` | 409 | duplicate `(entity, key)` among active fields | "A field with that key already exists for this entity." | `fields.service.ts` `create` |
+| `TW-FIELD-403-TIER` | 403 | attempt to modify a core/super field via the tenant endpoint | "Only your own custom fields can be changed here…" | `fields.service.ts` `setStatus` |
 | `TW-BATCH-409-DUP` | 409 | `unique_violation` on `batch (tenant_id, product_id, batch_number)` | "A batch with that number already exists for this product." | `batches.service.ts` `create` |
 | `TW-BATCH-400-PRODUCT` | 400 | `foreign_key_violation (23503)` on `batch.product_id` | "We couldn't link that batch to a product — the product wasn't found." | `batches.service.ts` `create` |
 | `TW-EVENT-409-IDEMPOTENT` | 409 | `unique_violation` on `event (tenant_id, idempotency_key)` — duplicate replay | "This event was already recorded, so we didn't add it again." | `events.service.ts` `create` |

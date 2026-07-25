@@ -82,6 +82,25 @@ export const ERROR_CATALOG = {
     message: 'That GTIN is already assigned to another product in your account.',
     internal: 'unique_violation on product (tenant_id, gtin) partial index.',
   },
+  // ---- field library ----
+  'TW-FIELD-404': {
+    code: 'TW-FIELD-404',
+    httpStatus: HttpStatus.NOT_FOUND,
+    message: 'That field couldn’t be found.',
+    internal: 'field_definition id not visible to tenant (RLS) or does not exist.',
+  },
+  'TW-FIELD-409-DUP': {
+    code: 'TW-FIELD-409-DUP',
+    httpStatus: HttpStatus.CONFLICT,
+    message: 'A field with that key already exists for this entity.',
+    internal: 'Duplicate (entity, key) among active fields visible to the tenant.',
+  },
+  'TW-FIELD-403-TIER': {
+    code: 'TW-FIELD-403-TIER',
+    httpStatus: HttpStatus.FORBIDDEN,
+    message: 'Only your own custom fields can be changed here — core and shared fields are managed by the platform.',
+    internal: 'Attempt to modify a core/super field via the tenant field endpoint.',
+  },
   // ---- batch ----
   'TW-BATCH-409-DUP': {
     code: 'TW-BATCH-409-DUP',

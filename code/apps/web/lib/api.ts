@@ -32,6 +32,16 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   return (await res.json()) as T;
 }
 
+/** Raw PATCH. Throws ApiError on an HTTP error. */
+async function patchJson<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'PATCH',
+    headers: { 'x-tenant-id': DEMO_TENANT },
+  });
+  if (!res.ok) throw await toApiError(res);
+  return (await res.json()) as T;
+}
+
 /** Poster for the offline outbox flush (same as postJson, exported by intent). */
 export function sendQueued(path: string, body: unknown): Promise<unknown> {
   return postJson(path, body);
@@ -77,8 +87,32 @@ export interface FieldDefinitionRow {
   isLocked: boolean;
 }
 
-export function getFields(entity: string): Promise<FieldDefinitionRow[]> {
-  return getJson<FieldDefinitionRow[]>(`/api/fields?entity=${encodeURIComponent(entity)}`);
+export function getFields(entity: string, includeInactive = false): Promise<FieldDefinitionRow[]> {
+  const q = includeInactive ? '&includeInactive=1' : '';
+  return getJson<FieldDefinitionRow[]>(`/api/fields?entity=${encodeURIComponent(entity)}${q}`);
+}
+
+export interface CreateFieldPayload {
+  entity: string;
+  key: string;
+  displayName: string;
+  dataType: string;
+  required?: boolean;
+}
+
+/** Add a Tenant Custom field. */
+export function createField(payload: CreateFieldPayload): Promise<FieldDefinitionRow> {
+  return postJson<FieldDefinitionRow>('/api/fields', payload);
+}
+
+/** Deactivate a field (deactivate-not-delete, invariant #4). */
+export function deactivateField(id: string): Promise<FieldDefinitionRow> {
+  return patchJson<FieldDefinitionRow>(`/api/fields/${id}/deactivate`);
+}
+
+/** Reactivate a previously deactivated field. */
+export function reactivateField(id: string): Promise<FieldDefinitionRow> {
+  return patchJson<FieldDefinitionRow>(`/api/fields/${id}/reactivate`);
 }
 
 /* ── Products (Identity & Master Data) ──────────────────────── */

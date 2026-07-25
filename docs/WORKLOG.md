@@ -9,6 +9,26 @@
 
 ---
 
+## 2026-07-25 — Field Library completed (write endpoints + rebuilt page)
+
+Finishes the last half-done live page (was live-read on the old design).
+- **API**: `fields.service.ts` +`create` (Tenant Custom only; tier forced;
+  dup-key guard) +`setStatus` (deactivate/reactivate — deactivate-not-delete,
+  invariant #4). `fields.controller.ts` +`POST /api/fields`,
+  `PATCH /api/fields/:id/{deactivate,reactivate}`, and `GET …&includeInactive=1`.
+  `field.dto.ts` (zod, snake_case key, dataType ∈ FIELD_DATA_TYPES). New codes
+  `TW-FIELD-404 / 409-DUP / 403-TIER`.
+- **Web**: `/fields` rebuilt as a live client page — entity tabs
+  (product/batch/unit/event/label/location), search, **"View historic records"**
+  toggle (shows deactivated), tier badges + lock, per-row Deactivate/Reactivate
+  (tenant-custom only; core/super = platform-managed), **"New field" modal**
+  (auto snake_case key, data-type select, required). `lib/api.ts` +`createField/
+  deactivateField/reactivateField` + `getFields(entity, includeInactive)`.
+- **Verified**: create→tenant_custom/active; dup→409; deactivate→excluded from
+  active, shown in historic; reactivate→active; core deactivate→403; `/fields`
+  HTTP 200; web typecheck clean. Now all 4 originally-live pages are on the new
+  design and the Field Library is fully manageable.
+
 ## 2026-07-25 — Error handling, logging & offline fallback (cross-cutting)
 
 User requirement: robust error handling with (1) friendly customer-facing errors,
