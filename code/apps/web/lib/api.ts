@@ -115,6 +115,26 @@ async function getJson<T>(path: string): Promise<T> {
   return (await res.json()) as T;
 }
 
+/** Commit a draft product: assign a GTIN and lock its identity (invariant 7). */
+export async function commitProduct(id: string, gtin: string): Promise<ApiProduct> {
+  const res = await fetch(`${API_BASE}/api/products/${id}/commit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-tenant-id': DEMO_TENANT },
+    body: JSON.stringify({ gtin }),
+  });
+  if (!res.ok) {
+    let msg = `API responded ${res.status}`;
+    try {
+      const j = await res.json();
+      if (j?.message) msg = Array.isArray(j.message) ? j.message.join(', ') : String(j.message);
+    } catch {
+      /* keep default */
+    }
+    throw new Error(msg);
+  }
+  return (await res.json()) as ApiProduct;
+}
+
 export function getManufacturingUnits(): Promise<ApiManufacturingUnit[]> {
   return getJson<ApiManufacturingUnit[]>('/api/manufacturing-units');
 }

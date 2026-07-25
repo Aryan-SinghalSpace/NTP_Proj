@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ProductsService } from './products.service';
-import { createProductSchema } from './product.dto';
+import { createProductSchema, commitProductSchema } from './product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -26,5 +26,15 @@ export class ProductsController {
       throw new BadRequestException(parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`));
     }
     return this.products.create(parsed.data);
+  }
+
+  /** POST /api/products/:id/commit — assign a GTIN and lock identity (#7). */
+  @Post(':id/commit')
+  commit(@Param('id') id: string, @Body() body: unknown) {
+    const parsed = commitProductSchema.safeParse(body);
+    if (!parsed.success) {
+      throw new BadRequestException(parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`));
+    }
+    return this.products.commit(id, parsed.data.gtin);
   }
 }

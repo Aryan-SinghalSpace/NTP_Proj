@@ -55,8 +55,24 @@ the real NestJS API + Postgres (RLS), then add tests once the connections exist.
 - **All three Master Data tabs (Products, Manufacturers, Brand owners) are now live.**
   `data_mock/masterData.ts` `manufacturers`/`brandOwners` exports are now unused.
 
+### Product commit (invariant #7) — DONE, live end-to-end
+- **API**: `POST /api/products/:id/commit` — assigns a GTIN and freezes identity.
+  Validates the GTIN with `isValidGtin` (GS1 mod-10) from `@tracewell/field-types`;
+  rejects re-committing a committed product (409); the partial unique index
+  `(tenant_id, gtin)` guarantees one-GTIN-per-tenant (unique_violation → 409).
+  Sets `status='committed'` + `committed_at`. Files: `products.service.ts`
+  (+`commit`), `products.controller.ts` (+route), `product.dto.ts` (+schema).
+  - Verified: invalid GTIN→400, valid→committed (gtin + committed_at set),
+    re-commit→409. (Test-committed the Protein Bar draft then reset it to draft so
+    the demo keeps two fresh drafts.)
+- **Web**: `lib/api.ts` +`commitProduct()`. Product drawer for a **draft** now
+  shows a "Commit & lock identity" panel: GTIN input (digits only) → `commitProduct`
+  → `router.refresh()`; committed products show Clone instead. Surfaces the server
+  error message (bad check digit / already used) via the flash toast.
+  - Verified: `/master-data` HTTP 200; typecheck clean.
+
 ### Next up
 - Keep wiring pages (dashboard KPIs, rebuild `/fields` on new design, events/batches…).
-- Consider `POST` for units/brand-owners + product commit (draft→committed, locks GTIN).
+- **Batches** entity (needs a short plan) → unlocks events/trace/recall/FEFO/dashboard.
 - After connections: tests for each component; OIDC to replace the `x-tenant-id`
   header stand-in.

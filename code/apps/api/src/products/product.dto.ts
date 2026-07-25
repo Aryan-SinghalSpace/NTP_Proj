@@ -17,3 +17,10 @@ export const createProductSchema = z.object({
 });
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
+
+/** Payload to commit a draft product: the GTIN being assigned (validated GS1). */
+export const commitProductSchema = z.object({
+  gtin: z.string().trim().min(1),
+});
+
+export type CommitProductInput = z.infer<typeof commitProductSchema>;

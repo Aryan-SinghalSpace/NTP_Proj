@@ -26,6 +26,7 @@ import {
 } from '../../data_mock/masterData';
 import {
   createProduct,
+  commitProduct,
   type ApiProduct,
   type ApiManufacturingUnit,
   type ApiBrandOwner,
@@ -248,7 +249,18 @@ export default function MasterDataClient({
         </p>
       </main>
 
-      {selected && <ProductDrawer product={selected} onClose={() => setSelected(null)} onFlash={flash} />}
+      {selected && (
+        <ProductDrawer
+          product={selected}
+          onClose={() => setSelected(null)}
+          onFlash={flash}
+          onCommitted={(name, gtin) => {
+            setSelected(null);
+            flash(`“${name}” committed · GTIN ${gtin} locked (invariant #7)`);
+            router.refresh();
+          }}
+        />
+      )}
       {creating && (
         <CreateProductModal
           onClose={() => setCreating(false)}
@@ -692,12 +704,29 @@ function ProductDrawer({
   product,
   onClose,
   onFlash,
+  onCommitted,
 }: {
   product: Product;
   onClose: () => void;
   onFlash: (t: string) => void;
+  onCommitted: (name: string, gtin: string) => void;
 }) {
   const locked = product.status === 'committed';
+  const [gtin, setGtin] = useState('');
+  const [committing, setCommitting] = useState(false);
+
+  async function commit() {
+    const value = gtin.trim();
+    if (!value || committing) return;
+    setCommitting(true);
+    try {
+      const res = await commitProduct(product.id, value);
+      onCommitted(product.name, res.gtin ?? value);
+    } catch (e) {
+      onFlash(e instanceof Error ? e.message : 'Commit failed');
+      setCommitting(false);
+    }
+  }
   return (
     <div className="fixed inset-0 z-40">
       <div className="absolute inset-0 bg-[#1b1922]/30" onClick={onClose} />
@@ -792,21 +821,49 @@ function ProductDrawer({
         </Section>
 
         {/* footer actions */}
-        <div className="mt-auto flex gap-2.5 border-t border-border p-5">
-          <button
-            onClick={() => onFlash(`Opened trace for ${product.name}`)}
-            className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface text-[13.5px] font-semibold hover:bg-surface-hover"
-          >
-            <ActivityIcon width={16} height={16} /> View trace
-          </button>
-          <button
-            onClick={() => onFlash(locked ? 'Cannot edit locked identity — clone to revise' : 'Editing draft…')}
-            className="brand-grad inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-[13.5px] font-semibold text-white"
-          >
-            {locked ? <CheckIcon width={16} height={16} /> : <PlusIcon width={16} height={16} />}
-            {locked ? 'Clone' : 'Edit draft'}
-          </button>
-        </div>
+        {locked ? (
+          <div className="mt-auto flex gap-2.5 border-t border-border p-5">
+            <button
+              onClick={() => onFlash(`Opened trace for ${product.name}`)}
+              className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-border-strong bg-surface text-[13.5px] font-semibold hover:bg-surface-hover"
+            >
+              <ActivityIcon width={16} height={16} /> View trace
+            </button>
+            <button
+              onClick={() => onFlash('Cannot edit locked identity — clone to revise')}
+              className="brand-grad inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl text-[13.5px] font-semibold text-white"
+            >
+              <CheckIcon width={16} height={16} /> Clone
+            </button>
+          </div>
+        ) : (
+          <div className="mt-auto border-t border-border p-5">
+            <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-subtle">
+              <LockIcon width={11} height={11} /> Commit &amp; lock identity
+            </div>
+            <p className="mb-2.5 text-[12px] text-muted">
+              Assign a GTIN to freeze this product&apos;s identity (invariant&nbsp;#7). Validated with the GS1
+              check digit; server-enforced and irreversible.
+            </p>
+            <div className="flex gap-2.5">
+              <input
+                value={gtin}
+                onChange={(e) => setGtin(e.target.value.replace(/[^\d]/g, ''))}
+                placeholder="GTIN (8/12/13/14 digits)"
+                inputMode="numeric"
+                className="h-10 flex-1 rounded-xl border border-border-strong bg-surface px-3 font-mono text-[13px] outline-none focus:border-primary placeholder:text-subtle"
+              />
+              <button
+                onClick={commit}
+                disabled={!gtin.trim() || committing}
+                className="brand-grad inline-flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-[13.5px] font-semibold text-white disabled:opacity-50"
+              >
+                <LockIcon width={15} height={15} />
+                {committing ? 'Committing…' : 'Commit'}
+              </button>
+            </div>
+          </div>
+        )}
       </aside>
     </div>
   );
