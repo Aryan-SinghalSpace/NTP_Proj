@@ -25,3 +25,61 @@ export async function getFields(entity: string): Promise<FieldDefinitionRow[]> {
   }
   return (await res.json()) as FieldDefinitionRow[];
 }
+
+/* ── Products (Identity & Master Data) ──────────────────────── */
+
+/** A product row exactly as the API returns it (drizzle camelCases the columns). */
+export interface ApiProduct {
+  id: string;
+  tenantId: string;
+  gtin: string | null; // null while draft — assigned at commit (invariant 7)
+  brand: string;
+  name: string;
+  netContent: string;
+  packType: string;
+  country: string;
+  brandOwner: string;
+  category: string;
+  attributes: Record<string, string>; // mrp, hsn, mfgUnit, shelfLife…
+  status: 'draft' | 'committed';
+  committedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProductPayload {
+  brand: string;
+  name: string;
+  netContent: string;
+  packType: string;
+  country?: string;
+  brandOwner: string;
+  category: string;
+  attributes?: Record<string, string>;
+}
+
+/** The current tenant's products. RLS on the API scopes them to the tenant. */
+export async function getProducts(): Promise<ApiProduct[]> {
+  const res = await fetch(`${API_BASE}/api/products`, {
+    headers: { 'x-tenant-id': DEMO_TENANT },
+    cache: 'no-store',
+  });
+  if (!res.ok) {
+    throw new Error(`API responded ${res.status}`);
+  }
+  return (await res.json()) as ApiProduct[];
+}
+
+/** Create a draft product. Runs the POST /api/products write path through RLS. */
+export async function createProduct(payload: CreateProductPayload): Promise<ApiProduct> {
+  const res = await fetch(`${API_BASE}/api/products`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-tenant-id': DEMO_TENANT },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`API responded ${res.status}${detail ? `: ${detail}` : ''}`);
+  }
+  return (await res.json()) as ApiProduct;
+}
