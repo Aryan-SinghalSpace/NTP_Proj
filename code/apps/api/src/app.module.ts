@@ -7,6 +7,7 @@ import { ProductsModule } from './products/products.module';
 import { MasterDataModule } from './master-data/master-data.module';
 import { BatchesModule } from './batches/batches.module';
 import { EventsModule } from './events/events.module';
+import { AccessModule } from './access/access.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { EventsModule } from './events/events.module';
     MasterDataModule,
     BatchesModule,
     EventsModule,
+    AccessModule,
   ],
 })
 export class AppModule implements NestModule {

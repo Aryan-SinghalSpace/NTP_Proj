@@ -68,6 +68,9 @@ Codes are `TW-<AREA>-<n>`. Areas: `GEN` generic · `AUTH` auth · `TENANT` tenan
 | `TW-BATCH-409-DUP` | 409 | `unique_violation` on `batch (tenant_id, product_id, batch_number)` | "A batch with that number already exists for this product." | `batches.service.ts` `create` |
 | `TW-BATCH-400-PRODUCT` | 400 | `foreign_key_violation (23503)` on `batch.product_id` | "We couldn't link that batch to a product — the product wasn't found." | `batches.service.ts` `create` |
 | `TW-EVENT-409-IDEMPOTENT` | 409 | `unique_violation` on `event (tenant_id, idempotency_key)` — duplicate replay | "This event was already recorded, so we didn't add it again." | `events.service.ts` `create` |
+| `TW-ROLE-404` | 404 | role id not visible to tenant (RLS) or absent | "That role couldn't be found." | `access/roles.service.ts` `update` |
+| `TW-ROLE-409-DUP` | 409 | `unique_violation` on `role (tenant_id, lower(name))` | "A role with that name already exists." | `access/roles.service.ts` `create`/`update` |
+| `TW-USER-409-DUP` | 409 | `unique_violation` on `tenant_user (tenant_id, lower(email))` | "Someone with that email is already in your team." | `access/users.service.ts` `create` |
 | `TW-SYS-503-DB` | 503 | Database unreachable / connection error | "The service is briefly unavailable. Your work is safe — please try again in a moment." | reserved (DB health) |
 
 > **Adding a new error:** add it to `error-catalog.ts`, throw

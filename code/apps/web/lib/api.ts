@@ -32,11 +32,15 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   return (await res.json()) as T;
 }
 
-/** Raw PATCH. Throws ApiError on an HTTP error. */
-async function patchJson<T>(path: string): Promise<T> {
+/** Raw PATCH (optional JSON body). Throws ApiError on an HTTP error. */
+async function patchJson<T>(path: string, body?: unknown): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'PATCH',
-    headers: { 'x-tenant-id': DEMO_TENANT },
+    headers:
+      body === undefined
+        ? { 'x-tenant-id': DEMO_TENANT }
+        : { 'Content-Type': 'application/json', 'x-tenant-id': DEMO_TENANT },
+    body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (!res.ok) throw await toApiError(res);
   return (await res.json()) as T;
@@ -294,4 +298,60 @@ export function createEvent(payload: CreateEventPayload): Promise<ApiEvent> {
     label: `${withKey.eventType} · ${withKey.subjectLabel ?? 'event'}`,
     offlineMsg: `You’re offline — the ${withKey.eventType} event was saved and will sync automatically.`,
   });
+}
+
+/* ── Roles & users (tenant identity & access) ─────────────────────────────── */
+
+export interface Crud {
+  create: boolean;
+  read: boolean;
+  update: boolean;
+  delete: boolean;
+}
+
+export interface ApiRole {
+  id: string;
+  name: string;
+  description: string;
+  permissions: Record<string, Crud>;
+  isSystem: boolean;
+  members: number;
+}
+
+export interface ApiUser {
+  id: string;
+  name: string;
+  email: string;
+  roleId: string | null;
+  roleName: string | null;
+  status: 'active' | 'invited' | 'disabled';
+  lastActiveAt: string | null;
+  createdAt: string;
+}
+
+export function getRoles(): Promise<ApiRole[]> {
+  return getJson<ApiRole[]>('/api/roles');
+}
+
+export function createRole(payload: {
+  name: string;
+  description?: string;
+  permissions?: Record<string, Crud>;
+}): Promise<ApiRole> {
+  return postJson<ApiRole>('/api/roles', payload);
+}
+
+export function updateRole(
+  id: string,
+  patch: { name?: string; description?: string; permissions?: Record<string, Crud> },
+): Promise<ApiRole> {
+  return patchJson<ApiRole>(`/api/roles/${id}`, patch);
+}
+
+export function getUsers(): Promise<ApiUser[]> {
+  return getJson<ApiUser[]>('/api/users');
+}
+
+export function createUser(payload: { name: string; email: string; roleId?: string }): Promise<ApiUser> {
+  return postJson<ApiUser>('/api/users', payload);
 }

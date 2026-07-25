@@ -176,6 +176,39 @@ export const event = pgTable(
   }),
 );
 
+/** A configurable, tenant-scoped role with a resource→CRUD permission map. */
+export const role = pgTable(
+  'role',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    description: text('description').notNull().default(''),
+    permissions: jsonb('permissions').notNull().default({}),
+    isSystem: boolean('is_system').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ tenantIdx: index('role_tenant_idx').on(t.tenantId) }),
+);
+
+/** A tenant user (auth is the x-tenant-id stand-in until OIDC). */
+export const tenantUser = pgTable(
+  'tenant_user',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    email: text('email').notNull(),
+    roleId: uuid('role_id'),
+    status: text('status').notNull().default('invited'),
+    lastActiveAt: timestamp('last_active_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ roleIdx: index('tenant_user_role_idx').on(t.roleId) }),
+);
+
 export const schema = {
   tenant,
   fieldDefinition,
@@ -184,4 +217,6 @@ export const schema = {
   brandOwner,
   batch,
   event,
+  role,
+  tenantUser,
 };

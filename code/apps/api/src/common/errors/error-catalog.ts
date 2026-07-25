@@ -114,6 +114,25 @@ export const ERROR_CATALOG = {
     message: 'We couldn’t link that batch to a product — the product wasn’t found.',
     internal: 'foreign_key_violation (23503) on batch.product_id.',
   },
+  // ---- roles & users ----
+  'TW-ROLE-404': {
+    code: 'TW-ROLE-404',
+    httpStatus: HttpStatus.NOT_FOUND,
+    message: 'That role couldn’t be found.',
+    internal: 'role id not visible to tenant (RLS) or absent.',
+  },
+  'TW-ROLE-409-DUP': {
+    code: 'TW-ROLE-409-DUP',
+    httpStatus: HttpStatus.CONFLICT,
+    message: 'A role with that name already exists.',
+    internal: 'unique_violation on role (tenant_id, lower(name)).',
+  },
+  'TW-USER-409-DUP': {
+    code: 'TW-USER-409-DUP',
+    httpStatus: HttpStatus.CONFLICT,
+    message: 'Someone with that email is already in your team.',
+    internal: 'unique_violation on tenant_user (tenant_id, lower(email)).',
+  },
   // ---- event ----
   'TW-EVENT-409-IDEMPOTENT': {
     code: 'TW-EVENT-409-IDEMPOTENT',

@@ -9,6 +9,24 @@
 
 ---
 
+## 2026-07-25 — Users & Roles wired to live backend
+
+- **API**: `0006_users_roles.sql` — `role` (name, description, `permissions` jsonb
+  resource→CRUD, `is_system`) + `tenant_user` (name, email, `role_id` FK, status
+  active/invited/disabled, last_active_at) + RLS + grants + seed (5 roles w/
+  matrices, 8 users). `AccessModule` (`access/`): `GET/POST /api/roles`,
+  `PATCH /api/roles/:id` (name/description/**permission matrix**),
+  `GET/POST /api/users`. Role member counts + user role-name are derived
+  (group-by / left-join). New codes `TW-ROLE-404 / 409-DUP`, `TW-USER-409-DUP`.
+- **Web**: `/users` live (table + search + **Invite modal** → POST) and `/roles`
+  live (role cards w/ live member counts + **editable CRUD permission matrix** for
+  non-system roles → PATCH save + dirty state + **New role** modal). `lib/api.ts`
+  +`ApiRole/ApiUser/Crud` + `getRoles/createRole/updateRole/getUsers/createUser`;
+  `patchJson` now takes an optional body.
+- **Verified**: roles w/ counts (Admin 1, Ops 2, QA 2, Dealer 2, Viewer 1 = 8);
+  users w/ role names; RLS other-tenant→0; invite+dup→409; role create + permission
+  PATCH + dup→409; `/users` + `/roles` HTTP 200; typecheck clean.
+
 ## 2026-07-25 — Field Library completed (write endpoints + rebuilt page)
 
 Finishes the last half-done live page (was live-read on the old design).
