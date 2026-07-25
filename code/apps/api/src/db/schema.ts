@@ -85,4 +85,37 @@ export const product = pgTable(
   }),
 );
 
-export const schema = { tenant, fieldDefinition, product };
+/** Manufacturing unit (a plant / co-pack). Tenant-scoped under RLS. */
+export const manufacturingUnit = pgTable(
+  'manufacturing_unit',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    code: text('code').notNull(),
+    location: text('location').notNull(),
+    identifier: text('identifier').notNull(),
+    status: text('status').notNull().default('active'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ tenantIdx: index('manufacturing_unit_tenant_idx').on(t.tenantId) }),
+);
+
+/** Brand owner (a company owning brands). Tenant-scoped under RLS. */
+export const brandOwner = pgTable(
+  'brand_owner',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    gln: text('gln'),
+    country: text('country').notNull().default('India'),
+    status: text('status').notNull().default('active'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ tenantIdx: index('brand_owner_tenant_idx').on(t.tenantId) }),
+);
+
+export const schema = { tenant, fieldDefinition, product, manufacturingUnit, brandOwner };
