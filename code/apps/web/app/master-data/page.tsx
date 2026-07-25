@@ -1,19 +1,32 @@
 import Link from 'next/link';
 import { TopNav } from '../../components/TopNav';
-import { getProducts, type ApiProduct } from '../../lib/api';
+import {
+  getProducts,
+  getManufacturingUnits,
+  getBrandOwners,
+  type ApiProduct,
+  type ApiManufacturingUnit,
+  type ApiBrandOwner,
+} from '../../lib/api';
 import MasterDataClient from './master-data-client';
 
 /**
- * Master Data — server component. Fetches the tenant's products live from the
- * API (through Postgres RLS) and hands them to the interactive client. If the
- * API is down, it degrades to a clear "start the backend" message rather than
- * crashing, so the page is still reachable during frontend-only work.
+ * Master Data — server component. Fetches the tenant's products, manufacturing
+ * units and brand owners live from the API (through Postgres RLS) and hands them
+ * to the interactive client. If the API is down, it degrades to a clear "start
+ * the backend" message rather than crashing.
  */
 export default async function MasterDataPage() {
   let products: ApiProduct[] = [];
+  let units: ApiManufacturingUnit[] = [];
+  let owners: ApiBrandOwner[] = [];
   let error: string | null = null;
   try {
-    products = await getProducts();
+    [products, units, owners] = await Promise.all([
+      getProducts(),
+      getManufacturingUnits(),
+      getBrandOwners(),
+    ]);
   } catch (e) {
     error = e instanceof Error ? e.message : 'Failed to load';
   }
@@ -41,5 +54,5 @@ export default async function MasterDataPage() {
     );
   }
 
-  return <MasterDataClient initialProducts={products} />;
+  return <MasterDataClient initialProducts={products} initialUnits={units} initialOwners={owners} />;
 }

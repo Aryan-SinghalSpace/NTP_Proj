@@ -18,15 +18,19 @@ import {
   CheckIcon,
 } from '../../components/icons';
 import {
-  manufacturers,
-  brandOwners,
   identityFields,
   type Product,
   type ProductStatus,
   type Tone,
   type PackLevel,
 } from '../../data_mock/masterData';
-import { createProduct, type ApiProduct, type CreateProductPayload } from '../../lib/api';
+import {
+  createProduct,
+  type ApiProduct,
+  type ApiManufacturingUnit,
+  type ApiBrandOwner,
+  type CreateProductPayload,
+} from '../../lib/api';
 
 const toneColor: Record<Tone, string> = {
   primary: 'var(--primary)',
@@ -99,7 +103,15 @@ const tabs: { key: Tab; label: string; Icon: typeof BoxIcon }[] = [
   { key: 'hierarchy', label: 'Pack Hierarchy', Icon: LayersIcon },
 ];
 
-export default function MasterDataClient({ initialProducts }: { initialProducts: ApiProduct[] }) {
+export default function MasterDataClient({
+  initialProducts,
+  initialUnits,
+  initialOwners,
+}: {
+  initialProducts: ApiProduct[];
+  initialUnits: ApiManufacturingUnit[];
+  initialOwners: ApiBrandOwner[];
+}) {
   const router = useRouter();
   const products = useMemo(() => initialProducts.map(toUiProduct), [initialProducts]);
 
@@ -123,8 +135,8 @@ export default function MasterDataClient({ initialProducts }: { initialProducts:
   const kpis = [
     { label: 'Active GTINs', value: String(committed.length), foot: `${products.length} products`, tone: 'primary' as Tone },
     { label: 'Products', value: String(products.length), foot: `${drafts.length} draft · ${committed.length} committed`, tone: 'teal' as Tone },
-    { label: 'Manufacturing units', value: String(new Set(products.map((p) => p.mfgUnit).filter((u) => u !== '—')).size), foot: 'from product records', tone: 'violet' as Tone },
-    { label: 'Brand owners', value: String(new Set(products.map((p) => p.brandOwner)).size), foot: 'linked to products', tone: 'amber' as Tone },
+    { label: 'Manufacturing units', value: String(initialUnits.length), foot: `${initialUnits.filter((u) => u.status === 'active').length} active`, tone: 'violet' as Tone },
+    { label: 'Brand owners', value: String(initialOwners.length), foot: `${initialOwners.reduce((n, o) => n + o.brands, 0)} brands linked`, tone: 'amber' as Tone },
   ];
 
   const filtered = products.filter((p) => {
@@ -218,8 +230,8 @@ export default function MasterDataClient({ initialProducts }: { initialProducts:
             onOpen={setSelected}
           />
         )}
-        {tab === 'manufacturers' && <ManufacturersTab />}
-        {tab === 'brands' && <BrandsTab />}
+        {tab === 'manufacturers' && <ManufacturersTab units={initialUnits} />}
+        {tab === 'brands' && <BrandsTab owners={initialOwners} />}
         {tab === 'hierarchy' && (
           <HierarchyTab
             committed={committed}
@@ -230,8 +242,9 @@ export default function MasterDataClient({ initialProducts }: { initialProducts:
         )}
 
         <p className="mt-8 text-[13px] text-subtle">
-          Products are <span className="font-semibold text-teal">live</span> (Postgres + RLS). Manufacturers &
-          Brand owners still use mock data — their backend slices come next.
+          Products, manufacturing units & brand owners are all{' '}
+          <span className="font-semibold text-teal">live</span> (Postgres + RLS). Product / brand counts are
+          derived live by joining the product table, so they never drift.
         </p>
       </main>
 
@@ -501,9 +514,9 @@ function StatusBadge({ status }: { status: ProductStatus }) {
   );
 }
 
-/* ── Manufacturers tab (mock — backend slice pending) ─────── */
+/* ── Manufacturers tab (live — product counts derived) ────── */
 
-function ManufacturersTab() {
+function ManufacturersTab({ units }: { units: ApiManufacturingUnit[] }) {
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-surface">
       <table className="w-full text-[13px]">
@@ -518,7 +531,7 @@ function ManufacturersTab() {
           </tr>
         </thead>
         <tbody>
-          {manufacturers.map((m) => (
+          {units.map((m) => (
             <tr key={m.id} className="border-b border-border last:border-0">
               <td className="px-4 py-3">
                 <div className="flex items-center gap-3">
@@ -537,18 +550,25 @@ function ManufacturersTab() {
               </td>
             </tr>
           ))}
+          {units.length === 0 && (
+            <tr>
+              <td colSpan={6} className="px-4 py-10 text-center text-muted">
+                No manufacturing units yet.
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
   );
 }
 
-/* ── Brand owners tab (mock — backend slice pending) ──────── */
+/* ── Brand owners tab (live — product/brand counts derived) ── */
 
-function BrandsTab() {
+function BrandsTab({ owners }: { owners: ApiBrandOwner[] }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {brandOwners.map((b) => (
+      {owners.map((b) => (
         <div key={b.id} className="rounded-3xl border border-border bg-surface p-5">
           <div className="mb-4 flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary-soft text-primary">
@@ -556,7 +576,7 @@ function BrandsTab() {
             </span>
             <div>
               <div className="font-semibold">{b.name}</div>
-              <div className="font-mono text-[12px] text-muted">GLN {b.gln}</div>
+              <div className="font-mono text-[12px] text-muted">GLN {b.gln ?? '—'}</div>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">

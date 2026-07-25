@@ -83,3 +83,42 @@ export async function createProduct(payload: CreateProductPayload): Promise<ApiP
   }
   return (await res.json()) as ApiProduct;
 }
+
+/* ── Manufacturing units & brand owners (product counts derived live) ─────── */
+
+export interface ApiManufacturingUnit {
+  id: string;
+  name: string;
+  code: string;
+  location: string;
+  identifier: string;
+  status: 'active' | 'inactive';
+  products: number; // derived from the product table
+}
+
+export interface ApiBrandOwner {
+  id: string;
+  name: string;
+  gln: string | null;
+  country: string;
+  status: 'active' | 'inactive';
+  products: number; // derived
+  brands: number; // derived (distinct brand)
+}
+
+async function getJson<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { 'x-tenant-id': DEMO_TENANT },
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error(`API responded ${res.status}`);
+  return (await res.json()) as T;
+}
+
+export function getManufacturingUnits(): Promise<ApiManufacturingUnit[]> {
+  return getJson<ApiManufacturingUnit[]>('/api/manufacturing-units');
+}
+
+export function getBrandOwners(): Promise<ApiBrandOwner[]> {
+  return getJson<ApiBrandOwner[]>('/api/brand-owners');
+}
