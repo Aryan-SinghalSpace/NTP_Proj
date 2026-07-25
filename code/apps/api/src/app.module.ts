@@ -15,6 +15,8 @@ import { ApprovalsModule } from './approvals/approvals.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { LogisticsModule } from './logistics/logistics.module';
 import { AdminModule } from './admin/admin.module';
+import { LabelsModule } from './labels/labels.module';
+import { WorkflowsModule } from './workflows/workflows.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { AdminModule } from './admin/admin.module';
     NotificationsModule,
     LogisticsModule,
     AdminModule,
+    LabelsModule,
+    WorkflowsModule,
   ],
 })
 export class AppModule implements NestModule {

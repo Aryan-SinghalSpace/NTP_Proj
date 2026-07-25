@@ -608,3 +608,55 @@ export function getAdminSuperFields(): Promise<{ fields: ApiSuperField[]; promot
 export function getAdminUsage(): Promise<ApiUsage> {
   return getPlatform<ApiUsage>('/api/admin/usage');
 }
+
+/* ── Labels & workflows ───────────────────────────────────────────────────── */
+
+export interface ApiLabelField {
+  label: string;
+  value: string;
+  mono?: boolean;
+}
+export interface ApiLabelTemplate {
+  id: string;
+  name: string;
+  symbology: string;
+  size: string;
+  payload: string;
+  fields: ApiLabelField[];
+  status: string;
+}
+export function getLabelTemplates(): Promise<ApiLabelTemplate[]> {
+  return getJson<ApiLabelTemplate[]>('/api/label-templates');
+}
+export function createLabelTemplate(payload: {
+  name: string;
+  symbology?: string;
+  size?: string;
+  payload?: string;
+  fields?: ApiLabelField[];
+}): Promise<ApiLabelTemplate> {
+  return postJson<ApiLabelTemplate>('/api/label-templates', payload);
+}
+
+export interface ApiWorkflow {
+  id: string;
+  name: string;
+  latestVersion: number;
+  state: 'draft' | 'published' | 'retired';
+  graph: unknown;
+  publishedVersion: number | null;
+  graceUntil: string | null;
+  versionCount: number;
+}
+export function getWorkflows(): Promise<ApiWorkflow[]> {
+  return getJson<ApiWorkflow[]>('/api/workflows');
+}
+export function createWorkflow(name: string, graph?: unknown): Promise<{ id: string; name: string }> {
+  return postJson('/api/workflows', { name, graph });
+}
+export function saveWorkflowGraph(id: string, graph: unknown): Promise<unknown> {
+  return postJson(`/api/workflows/${id}/save`, { graph });
+}
+export function publishWorkflow(id: string): Promise<unknown> {
+  return patchJson(`/api/workflows/${id}/publish`);
+}

@@ -1,7 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TopNav } from '../../components/TopNav';
+import {
+  getWorkflows,
+  saveWorkflowGraph,
+  publishWorkflow,
+  type ApiWorkflow,
+} from '../../lib/api';
 import {
   Glyph,
   SearchIcon,
@@ -36,10 +42,58 @@ export default function WorkflowsPage() {
 
   const selected = nodes.find((n) => n.id === selectedId) ?? null;
 
+  // live workflow persistence (definition + versions); the canvas stays the design surface
+  const [workflows, setWorkflows] = useState<ApiWorkflow[]>([]);
+  const [currentId, setCurrentId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const current = workflows.find((w) => w.id === currentId) ?? workflows[0] ?? null;
+
   const flash = (text: string, tone: 'ok' | 'info' = 'info') => {
     setNotice({ text, tone });
     window.setTimeout(() => setNotice(null), 2600);
   };
+
+  async function loadWorkflows(selectId?: string) {
+    try {
+      const w = await getWorkflows();
+      setWorkflows(w);
+      setCurrentId(selectId ?? currentId ?? w[0]?.id ?? null);
+    } catch {
+      /* API down — builder still usable as a design surface */
+    }
+  }
+  useEffect(() => {
+    void loadWorkflows();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function saveDraft() {
+    if (!current || saving) return;
+    setSaving(true);
+    try {
+      await saveWorkflowGraph(current.id, { nodes, edges });
+      flash('Draft saved to the version history', 'ok');
+      await loadWorkflows(current.id);
+    } catch (e) {
+      flash(e instanceof Error ? e.message : 'Save failed', 'info');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function publish() {
+    if (!current || saving) return;
+    setSaving(true);
+    try {
+      await publishWorkflow(current.id);
+      flash('Published · prior version enters 30-day grace', 'ok');
+      await loadWorkflows(current.id);
+    } catch (e) {
+      flash(e instanceof Error ? e.message : 'Publish failed', 'info');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   const toggle = (set: Set<string>, key: string) => {
     const next = new Set(set);
@@ -64,14 +118,28 @@ export default function WorkflowsPage() {
           <PanelLeftIcon />
         </button>
         <div className="wf-name">
-          {workflowMeta.name}
+          {current ? (
+            <select
+              value={current.id}
+              onChange={(e) => setCurrentId(e.target.value)}
+              style={{ border: 'none', background: 'transparent', font: 'inherit', fontWeight: 700, outline: 'none', cursor: 'pointer' }}
+            >
+              {workflows.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name}
+                </option>
+              ))}
+            </select>
+          ) : (
+            workflowMeta.name
+          )}
           <span className="badge-bd">
             <span className="bd" />
-            {workflowMeta.status} · v{workflowMeta.version}
+            {current ? `${current.state} · v${current.latestVersion}` : `${workflowMeta.status} · v${workflowMeta.version}`}
           </span>
         </div>
         <span className="text-muted" style={{ fontSize: 12 }}>
-          Autosaved 30s ago
+          {current ? `${current.versionCount} version${current.versionCount > 1 ? 's' : ''}` : 'Autosaved 30s ago'}
         </span>
         <div style={{ flex: 1 }} />
         <button className="btn-bd" onClick={() => flash('Dry run queued — 5 nodes, 0 side effects', 'info')}>
@@ -84,13 +152,10 @@ export default function WorkflowsPage() {
         <button className="btn-bd" onClick={() => flash('Draft discarded — reverted to last save', 'info')}>
           Discard
         </button>
-        <button className="btn-bd" onClick={() => flash('Draft saved', 'ok')}>
-          Save draft
+        <button className="btn-bd" onClick={saveDraft} disabled={saving || !current}>
+          {saving ? 'Saving…' : 'Save draft'}
         </button>
-        <button
-          className="btn-bd primary"
-          onClick={() => flash('Publish requested → approval queue (1 reviewer)', 'ok')}
-        >
+        <button className="btn-bd primary" onClick={publish} disabled={saving || !current}>
           <DownloadIcon /> Publish
         </button>
       </div>

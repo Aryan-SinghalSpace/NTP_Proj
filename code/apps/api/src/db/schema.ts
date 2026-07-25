@@ -370,4 +370,59 @@ export const shipmentLeg = pgTable(
   (t) => ({ shipmentIdx: index('shipment_leg_shipment_idx').on(t.shipmentId), dealerIdx: index('shipment_leg_dealer_idx').on(t.dealerId) }),
 );
 
-Object.assign(schema, { dealer, shipment, shipmentLeg });
+/** A label template (WYSIWYG design + barcode payload). Zint render is a sidecar. */
+export const labelTemplate = pgTable(
+  'label_template',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    symbology: text('symbology').notNull().default(''),
+    size: text('size').notNull().default(''),
+    payload: text('payload').notNull().default(''),
+    fields: jsonb('fields').notNull().default([]),
+    status: text('status').notNull().default('active'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ tenantIdx: index('label_template_tenant_idx').on(t.tenantId) }),
+);
+
+/** A workflow (stable identity); its graph lives in versioned rows. */
+export const workflowDefinition = pgTable(
+  'workflow_definition',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ tenantIdx: index('workflow_definition_tenant_idx').on(t.tenantId) }),
+);
+
+/** An immutable workflow version (draft/published/retired) with a graph. */
+export const workflowVersion = pgTable(
+  'workflow_version',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    definitionId: uuid('definition_id').notNull(),
+    version: integer('version').notNull().default(1),
+    state: text('state').notNull().default('draft'),
+    graph: jsonb('graph').notNull().default({}),
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    graceUntil: timestamp('grace_until', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ defIdx: index('workflow_version_def_idx').on(t.definitionId, t.version) }),
+);
+
+Object.assign(schema, {
+  dealer,
+  shipment,
+  shipmentLeg,
+  labelTemplate,
+  workflowDefinition,
+  workflowVersion,
+});

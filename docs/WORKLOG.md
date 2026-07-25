@@ -9,6 +9,27 @@
 
 ---
 
+## 2026-07-25 — Labels + Workflows wired (LAST mock pages → all pages live)
+
+- **API**: `0011_labels_workflows.sql` — `label_template` + `workflow_definition`
+  + `workflow_version` (versioned/append-only, draft/published/retired, graph
+  jsonb, 30-day grace) + RLS + seeds. `LabelsModule`: GET/POST /api/label-templates.
+  `WorkflowsModule`: GET /api/workflows (defs + latest version), POST (create draft
+  v1), POST /:id/save (persist graph; updates draft in place or opens a new draft
+  version), PATCH /:id/publish (publish latest draft; prior published → retired w/
+  grace_until = +30d). Create/publish write audit entries.
+- **Web**: `/labels` live (template list + preview from stored fields + **New
+  template** modal; Zint render/scannability illustrative). `/workflows` builder
+  top bar now live — **workflow picker** (switch definition), **Save draft**
+  (serialises the canvas graph → `/save`), **Publish** (→ `/publish`), with live
+  name + state·version + version-count badges. Canvas stays the design surface;
+  Temporal execution of the graph is the deferred slice. `lib/api.ts` +label +
+  workflow fetchers.
+- **Verified**: 3 templates; 2 workflows (published v1 + draft v1); save graph;
+  publish sets grace; `/labels` + `/workflows` HTTP 200; typecheck clean.
+- **ALL non-auth pages are now live.** Remaining mock = auth pages (login/register/
+  forgot/onboarding — need OIDC) + static landing/launcher.
+
 ## 2026-07-25 — Admin console wired (platform super-admin, cross-tenant)
 
 - **API**: `0010_more_tenants.sql` seeds 4 more tenants (varied status). `AdminModule`
