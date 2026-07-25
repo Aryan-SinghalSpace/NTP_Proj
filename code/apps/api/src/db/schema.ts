@@ -271,6 +271,39 @@ export const auditEntry = pgTable(
   (t) => ({ timeIdx: index('audit_entry_tenant_time_idx').on(t.tenantId, t.occurredAt) }),
 );
 
+/** Notification rule — "if trigger event then notify via channels". */
+export const notificationRule = pgTable(
+  'notification_rule',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    name: text('name').notNull(),
+    trigger: text('trigger').notNull(),
+    channels: jsonb('channels').notNull().default([]),
+    recipients: text('recipients').notNull().default(''),
+    enabled: boolean('enabled').notNull().default(true),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ tenantIdx: index('notification_rule_tenant_idx').on(t.tenantId) }),
+);
+
+/** Delivery log entry for a fired notification. */
+export const notificationDelivery = pgTable(
+  'notification_delivery',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    rule: text('rule').notNull(),
+    channel: text('channel').notNull(),
+    recipient: text('recipient').notNull(),
+    status: text('status').notNull().default('delivered'),
+    occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ timeIdx: index('notification_delivery_tenant_time_idx').on(t.tenantId, t.occurredAt) }),
+);
+
 export const schema = {
   tenant,
   fieldDefinition,
@@ -284,4 +317,6 @@ export const schema = {
   identityScheme,
   approvalRequest,
   auditEntry,
+  notificationRule,
+  notificationDelivery,
 };

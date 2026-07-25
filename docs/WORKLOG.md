@@ -9,6 +9,20 @@
 
 ---
 
+## 2026-07-25 — Notifications wired (rules + delivery log)
+
+- **API**: `0008_notifications.sql` — `notification_rule` (name, trigger, channels
+  jsonb, recipients, enabled) + `notification_delivery` (rule, channel, recipient,
+  status, occurred_at) + RLS + seeds. `NotificationsModule`:
+  `GET/POST /api/notification-rules`, `PATCH /api/notification-rules/:id` (toggle),
+  `GET /api/notification-deliveries`. Rule create/toggle write audit entries.
+  Delivery ENGINE (actual fan-out) deferred — the log shows seeded deliveries.
+- **Web**: `/notifications` live — Rules tab (live toggle + **New rule** modal with
+  channel multi-select) + Delivery log tab (live). `lib/api.ts` +rule/delivery
+  fetchers + Channel type.
+- **Verified**: 5 rules (4 enabled), toggle works, 6 deliveries, page HTTP 200,
+  typecheck clean.
+
 ## 2026-07-25 — Config pages wired: settings, account, identity-schemes, approvals, audit
 
 - **API**: `0007_config.sql` — relaxed tenant RLS (tenant may self-update its own

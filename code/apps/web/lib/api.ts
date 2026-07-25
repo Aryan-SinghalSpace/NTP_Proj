@@ -448,3 +448,42 @@ export interface ApiAudit {
 export function getAudit(limit = 200): Promise<ApiAudit[]> {
   return getJson<ApiAudit[]>(`/api/audit?limit=${limit}`);
 }
+
+/* ── Notifications (rules + delivery log) ─────────────────────────────────── */
+
+export type Channel = 'in-app' | 'email' | 'webhook';
+
+export interface ApiNotificationRule {
+  id: string;
+  name: string;
+  trigger: string;
+  channels: Channel[];
+  recipients: string;
+  enabled: boolean;
+}
+export interface ApiNotificationDelivery {
+  id: string;
+  rule: string;
+  channel: Channel;
+  recipient: string;
+  status: 'delivered' | 'pending' | 'failed';
+  occurredAt: string;
+}
+
+export function getNotificationRules(): Promise<ApiNotificationRule[]> {
+  return getJson<ApiNotificationRule[]>('/api/notification-rules');
+}
+export function createNotificationRule(payload: {
+  name: string;
+  trigger: string;
+  channels: Channel[];
+  recipients?: string;
+}): Promise<ApiNotificationRule> {
+  return postJson<ApiNotificationRule>('/api/notification-rules', payload);
+}
+export function toggleNotificationRule(id: string, enabled: boolean): Promise<ApiNotificationRule> {
+  return patchJson<ApiNotificationRule>(`/api/notification-rules/${id}`, { enabled });
+}
+export function getNotificationDeliveries(): Promise<ApiNotificationDelivery[]> {
+  return getJson<ApiNotificationDelivery[]>('/api/notification-deliveries');
+}
