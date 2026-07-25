@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { desc, eq } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { isValidGtin } from '@tracewell/field-types';
 import { TenantDbService } from '../db/tenant-db.service';
 import { currentTenant } from '../db/tenant-context';
@@ -15,11 +15,22 @@ import type { CreateProductInput } from './product.dto';
 export class ProductsService {
   constructor(private readonly db: TenantDbService) {}
 
-  /** All products for the current tenant. RLS scopes the rows to the tenant. */
+  /**
+   * All products for the current tenant, each with a live batch count derived
+   * from the batch table (never stored). RLS scopes both queries to the tenant.
+   */
   list() {
-    return this.db.run((tx) =>
-      tx.select().from(product).orderBy(desc(product.createdAt)),
-    );
+    return this.db.run(async (tx) => {
+      const rows = await tx.select().from(product).orderBy(desc(product.createdAt));
+      const counts = await tx.execute(
+        sql`select product_id, count(*)::int as n from batch group by product_id`,
+      );
+      const byProduct = new Map<string, number>();
+      for (const row of counts.rows as { product_id: string; n: number }[]) {
+        byProduct.set(row.product_id, row.n);
+      }
+      return rows.map((p) => ({ ...p, batchCount: byProduct.get(p.id) ?? 0 }));
+    });
   }
 
   /** One product by internal UUID. RLS still applies, so cross-tenant ids 404. */

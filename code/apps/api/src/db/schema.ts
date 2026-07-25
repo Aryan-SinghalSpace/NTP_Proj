@@ -118,4 +118,30 @@ export const brandOwner = pgTable(
   (t) => ({ tenantIdx: index('brand_owner_tenant_idx').on(t.tenantId) }),
 );
 
-export const schema = { tenant, fieldDefinition, product, manufacturingUnit, brandOwner };
+/**
+ * Batch — a produced lot of a product with its own mfg/expiry dates and quantity.
+ * UUID pk (#1); tenant-scoped under RLS. `expiry_date` powers FEFO advisory.
+ */
+export const batch = pgTable(
+  'batch',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id').notNull(),
+    productId: uuid('product_id').notNull(),
+    batchNumber: text('batch_number').notNull(),
+    mfgDate: text('mfg_date'), // DATE — kept as ISO string on the wire
+    expiryDate: text('expiry_date'),
+    quantity: integer('quantity').notNull().default(0),
+    manufacturingUnitId: uuid('manufacturing_unit_id'),
+    status: text('status').notNull().default('active'),
+    attributes: jsonb('attributes').notNull().default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    productIdx: index('batch_product_idx').on(t.productId),
+    expiryIdx: index('batch_tenant_expiry_idx').on(t.tenantId, t.expiryDate),
+  }),
+);
+
+export const schema = { tenant, fieldDefinition, product, manufacturingUnit, brandOwner, batch };

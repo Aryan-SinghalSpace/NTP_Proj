@@ -71,8 +71,33 @@ the real NestJS API + Postgres (RLS), then add tests once the connections exist.
   error message (bad check digit / already used) via the flash toast.
   - Verified: `/master-data` HTTP 200; typecheck clean.
 
-### Next up
-- Keep wiring pages (dashboard KPIs, rebuild `/fields` on new design, events/batches…).
-- **Batches** entity (needs a short plan) → unlocks events/trace/recall/FEFO/dashboard.
-- After connections: tests for each component; OIDC to replace the `x-tenant-id`
-  header stand-in.
+### Batches — DONE, live end-to-end
+- **API**: `0004_batch.sql` — `batch` table (UUID pk, `product_id` FK, `batch_number`,
+  mfg/expiry dates, quantity, `manufacturing_unit_id` FK, status
+  active/on_hold/recalled/depleted, attributes jsonb) + RLS + grants + unique
+  `(tenant_id, product_id, batch_number)` + expiry index (FEFO) + seed (6 batches
+  across the committed products). Drizzle `batch` schema (dates mapped as text/ISO).
+  `src/batches/*` — `BatchesModule`: `GET /api/batches?productId=` (FEFO order by
+  expiry), `POST /api/batches` (create; 409 on dup batch#, 400 on unknown product).
+  Products list endpoint now returns a live `batchCount` per product (join, not stored).
+  - Verified: 6 seeded batches in FEFO order; product batchCounts (Choco 2, Oat 2…);
+    ?productId scoping; RLS other-tenant→0; POST create ok, dup→409, count 2→3.
+- **Web**: `lib/api.ts` +`ApiBatch`/`getBatches`/`createBatch` + `batchCount` on
+  ApiProduct. Products table re-adds a live **Batches** column. Product drawer now
+  **fetches real batches on open** (loading→list, FEFO, status dot) with a
+  **"New batch" inline form** (batch#, mfg/expiry date pickers, qty) → `createBatch`
+  → refetch + `router.refresh()` so the list count updates.
+  - Verified: `/master-data` HTTP 200 with Batches column; typecheck clean.
+
+### Full status snapshot (2026-07-25)
+LIVE: `/master-data` (products+units+brand-owners+batches, create/commit/add-batch),
+`/fields` (old design). Live API: health, fields, products(+:id,+POST,+commit),
+manufacturing-units, brand-owners, batches(+POST). Everything else = mock UI.
+
+### Next up (connect order)
+- **Events** (Commission…Recall) — the workflow spine; big, needs a plan. Feeds
+  trace/recall/FEFO/dashboard.
+- **Users/Roles** (tenant-scoped) — groundwork for real auth.
+- **Dashboard** partial-live (product/GTIN/batch KPIs now that those exist).
+- Rebuild `/fields` on the new design.
+- After connections: tests per component; OIDC to replace `x-tenant-id` stand-in.

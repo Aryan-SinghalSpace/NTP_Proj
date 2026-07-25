@@ -5,9 +5,10 @@ import { HealthModule } from './health/health.module';
 import { FieldsModule } from './fields/fields.module';
 import { ProductsModule } from './products/products.module';
 import { MasterDataModule } from './master-data/master-data.module';
+import { BatchesModule } from './batches/batches.module';
 
 @Module({
-  imports: [DbModule, HealthModule, FieldsModule, ProductsModule, MasterDataModule],
+  imports: [DbModule, HealthModule, FieldsModule, ProductsModule, MasterDataModule, BatchesModule],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {

@@ -45,6 +45,7 @@ export interface ApiProduct {
   committedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  batchCount: number; // derived from the batch table
 }
 
 export interface CreateProductPayload {
@@ -141,4 +142,51 @@ export function getManufacturingUnits(): Promise<ApiManufacturingUnit[]> {
 
 export function getBrandOwners(): Promise<ApiBrandOwner[]> {
   return getJson<ApiBrandOwner[]>('/api/brand-owners');
+}
+
+/* ── Batches (batch traceability; expiry powers FEFO) ─────────────────────── */
+
+export interface ApiBatch {
+  id: string;
+  productId: string;
+  batchNumber: string;
+  mfgDate: string | null; // 'YYYY-MM-DD'
+  expiryDate: string | null;
+  quantity: number;
+  manufacturingUnitId: string | null;
+  status: 'active' | 'on_hold' | 'recalled' | 'depleted';
+  createdAt: string;
+}
+
+export interface CreateBatchPayload {
+  productId: string;
+  batchNumber: string;
+  mfgDate?: string;
+  expiryDate?: string;
+  quantity?: number;
+}
+
+/** Batches for one product (FEFO-ordered by expiry). RLS-scoped on the API. */
+export function getBatches(productId: string): Promise<ApiBatch[]> {
+  return getJson<ApiBatch[]>(`/api/batches?productId=${encodeURIComponent(productId)}`);
+}
+
+/** Create a batch. Runs the POST /api/batches write path through RLS. */
+export async function createBatch(payload: CreateBatchPayload): Promise<ApiBatch> {
+  const res = await fetch(`${API_BASE}/api/batches`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-tenant-id': DEMO_TENANT },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    let msg = `API responded ${res.status}`;
+    try {
+      const j = await res.json();
+      if (j?.message) msg = Array.isArray(j.message) ? j.message.join(', ') : String(j.message);
+    } catch {
+      /* keep default */
+    }
+    throw new Error(msg);
+  }
+  return (await res.json()) as ApiBatch;
 }

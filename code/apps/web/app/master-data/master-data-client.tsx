@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { TopNav } from '../../components/TopNav';
 import {
@@ -27,9 +27,12 @@ import {
 import {
   createProduct,
   commitProduct,
+  getBatches,
+  createBatch,
   type ApiProduct,
   type ApiManufacturingUnit,
   type ApiBrandOwner,
+  type ApiBatch,
   type CreateProductPayload,
 } from '../../lib/api';
 
@@ -84,7 +87,7 @@ function toUiProduct(p: ApiProduct): Product {
     packType: p.packType,
     country: p.country,
     status: p.status,
-    batches: 0,
+    batches: p.batchCount ?? 0,
     swatch: swatchFor(p.id),
     mrp: a.mrp ?? '—',
     hsn: a.hsn ?? '—',
@@ -254,6 +257,7 @@ export default function MasterDataClient({
           product={selected}
           onClose={() => setSelected(null)}
           onFlash={flash}
+          onChanged={() => router.refresh()}
           onCommitted={(name, gtin) => {
             setSelected(null);
             flash(`“${name}” committed · GTIN ${gtin} locked (invariant #7)`);
@@ -461,6 +465,7 @@ function ProductsTab({
               <th className="px-4 py-2.5 font-semibold">Brand</th>
               <th className="px-4 py-2.5 font-semibold">Category</th>
               <th className="px-4 py-2.5 font-semibold">Net content</th>
+              <th className="px-4 py-2.5 font-semibold">Batches</th>
               <th className="px-4 py-2.5 font-semibold">Status</th>
               <th className="px-4 py-2.5" />
             </tr>
@@ -489,6 +494,7 @@ function ProductsTab({
                 <td className="px-4 py-3 text-muted">{p.brand}</td>
                 <td className="px-4 py-3 text-muted">{p.category}</td>
                 <td className="px-4 py-3 text-muted">{p.netContent}</td>
+                <td className="px-4 py-3 text-muted">{p.batches}</td>
                 <td className="px-4 py-3">
                   <StatusBadge status={p.status} />
                 </td>
@@ -499,7 +505,7 @@ function ProductsTab({
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-muted">
+                <td colSpan={7} className="px-4 py-10 text-center text-muted">
                   No products match your filters.
                 </td>
               </tr>
@@ -704,16 +710,41 @@ function ProductDrawer({
   product,
   onClose,
   onFlash,
+  onChanged,
   onCommitted,
 }: {
   product: Product;
   onClose: () => void;
   onFlash: (t: string) => void;
+  onChanged: () => void;
   onCommitted: (name: string, gtin: string) => void;
 }) {
   const locked = product.status === 'committed';
   const [gtin, setGtin] = useState('');
   const [committing, setCommitting] = useState(false);
+
+  // Live batches for this product, fetched on open.
+  const [batches, setBatches] = useState<ApiBatch[] | null>(null);
+  const [addingBatch, setAddingBatch] = useState(false);
+
+  useEffect(() => {
+    let live = true;
+    setBatches(null);
+    getBatches(product.id)
+      .then((b) => live && setBatches(b))
+      .catch(() => live && setBatches([]));
+    return () => {
+      live = false;
+    };
+  }, [product.id]);
+
+  async function refetchBatches() {
+    try {
+      setBatches(await getBatches(product.id));
+    } catch {
+      /* leave as-is */
+    }
+  }
 
   async function commit() {
     const value = gtin.trim();
@@ -804,16 +835,43 @@ function ProductDrawer({
           ))}
         </Section>
 
-        {/* batches */}
-        <Section title={`Recent batches · ${product.batches} total`}>
-          {product.recentBatches.length === 0 ? (
-            <p className="text-[12.5px] text-muted">No batches yet — batch traceability is a later slice.</p>
+        {/* batches — live, ordered by expiry (FEFO) */}
+        <Section
+          title={`Batches · ${batches?.length ?? product.batches} total`}
+          right={
+            <button
+              onClick={() => setAddingBatch((v) => !v)}
+              className="inline-flex items-center gap-1 rounded-lg border border-border-strong bg-surface px-2 py-1 text-[11.5px] font-semibold hover:bg-surface-2"
+            >
+              <PlusIcon width={12} height={12} /> New batch
+            </button>
+          }
+        >
+          {addingBatch && (
+            <NewBatchForm
+              productId={product.id}
+              onCancel={() => setAddingBatch(false)}
+              onCreated={(bn) => {
+                setAddingBatch(false);
+                onFlash(`Batch ${bn} added to ${product.name}`);
+                void refetchBatches();
+                onChanged(); // refresh the list so the product's batch count updates
+              }}
+              onError={onFlash}
+            />
+          )}
+          {batches === null ? (
+            <p className="text-[12.5px] text-muted">Loading batches…</p>
+          ) : batches.length === 0 ? (
+            <p className="text-[12.5px] text-muted">No batches yet — add one to start batch traceability.</p>
           ) : (
-            product.recentBatches.map((b) => (
-              <div key={b.code} className="mb-2 flex items-center gap-3 rounded-xl border border-border p-3 last:mb-0">
-                <span className="font-mono text-[12.5px] font-semibold">{b.code}</span>
+            batches.map((b) => (
+              <div key={b.id} className="mb-2 flex items-center gap-3 rounded-xl border border-border p-3 last:mb-0">
+                <span className="font-mono text-[12.5px] font-semibold">{b.batchNumber}</span>
+                <BatchStatusDot status={b.status} />
                 <span className="ml-auto text-[12px] text-muted">
-                  mfg {b.mfg} · exp {b.exp}
+                  {b.mfgDate ? `mfg ${b.mfgDate}` : 'mfg —'} · {b.expiryDate ? `exp ${b.expiryDate}` : 'exp —'}
+                  {b.quantity ? ` · ${b.quantity.toLocaleString()} u` : ''}
                 </span>
               </div>
             ))
@@ -894,6 +952,114 @@ function DefRow({ label, value, mono }: { label: string; value: string; mono?: b
     <div className="flex items-center justify-between py-1.5">
       <span className="text-[12.5px] text-muted">{label}</span>
       <span className={`text-[12.5px] font-semibold ${mono ? 'font-mono' : ''}`}>{value}</span>
+    </div>
+  );
+}
+
+const batchStatusColor: Record<ApiBatch['status'], string> = {
+  active: 'var(--teal)',
+  on_hold: 'var(--amber)',
+  recalled: 'var(--rose)',
+  depleted: 'var(--subtle)',
+};
+
+function BatchStatusDot({ status }: { status: ApiBatch['status'] }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold capitalize text-muted">
+      <span className="h-1.5 w-1.5 rounded-full" style={{ background: batchStatusColor[status] }} />
+      {status.replace('_', ' ')}
+    </span>
+  );
+}
+
+/* ── New batch form (writes through POST /api/batches) ─────── */
+
+function NewBatchForm({
+  productId,
+  onCancel,
+  onCreated,
+  onError,
+}: {
+  productId: string;
+  onCancel: () => void;
+  onCreated: (batchNumber: string) => void;
+  onError: (msg: string) => void;
+}) {
+  const [batchNumber, setBatchNumber] = useState('');
+  const [mfgDate, setMfgDate] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function submit() {
+    const bn = batchNumber.trim();
+    if (!bn || busy) return;
+    setBusy(true);
+    try {
+      await createBatch({
+        productId,
+        batchNumber: bn,
+        mfgDate: mfgDate || undefined,
+        expiryDate: expiryDate || undefined,
+        quantity: quantity ? Number(quantity) : undefined,
+      });
+      onCreated(bn);
+    } catch (e) {
+      onError(e instanceof Error ? e.message : 'Could not create batch');
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mb-3 rounded-xl border border-border bg-surface-2 p-3">
+      <input
+        value={batchNumber}
+        onChange={(e) => setBatchNumber(e.target.value)}
+        placeholder="Batch number (e.g. B-240931)"
+        className="mb-2 h-9 w-full rounded-lg border border-border-strong bg-surface px-2.5 font-mono text-[12.5px] outline-none focus:border-primary placeholder:text-subtle"
+      />
+      <div className="mb-2 grid grid-cols-2 gap-2">
+        <label className="block">
+          <span className="mb-0.5 block text-[10.5px] font-semibold text-subtle">Mfg date</span>
+          <input
+            type="date"
+            value={mfgDate}
+            onChange={(e) => setMfgDate(e.target.value)}
+            className="h-9 w-full rounded-lg border border-border-strong bg-surface px-2 text-[12px] outline-none focus:border-primary"
+          />
+        </label>
+        <label className="block">
+          <span className="mb-0.5 block text-[10.5px] font-semibold text-subtle">Expiry date</span>
+          <input
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+            className="h-9 w-full rounded-lg border border-border-strong bg-surface px-2 text-[12px] outline-none focus:border-primary"
+          />
+        </label>
+      </div>
+      <input
+        value={quantity}
+        onChange={(e) => setQuantity(e.target.value.replace(/[^\d]/g, ''))}
+        inputMode="numeric"
+        placeholder="Quantity (units)"
+        className="mb-2 h-9 w-full rounded-lg border border-border-strong bg-surface px-2.5 text-[12.5px] outline-none focus:border-primary placeholder:text-subtle"
+      />
+      <div className="flex gap-2">
+        <button
+          onClick={onCancel}
+          className="h-8 flex-1 rounded-lg border border-border-strong bg-surface text-[12px] font-semibold hover:bg-surface-hover"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={submit}
+          disabled={!batchNumber.trim() || busy}
+          className="brand-grad h-8 flex-1 rounded-lg text-[12px] font-semibold text-white disabled:opacity-50"
+        >
+          {busy ? 'Adding…' : 'Add batch'}
+        </button>
+      </div>
     </div>
   );
 }
